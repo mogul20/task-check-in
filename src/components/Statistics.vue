@@ -1,358 +1,359 @@
 <template>
   <div>
     <div v-if="appState.isLoading" class="flex items-center justify-center py-16">
-      <div class="flex flex-col items-center">
+      <div class="flex items-center gap-3">
         <Loader2 class="w-8 h-8 text-blue-500 animate-spin" />
-        <p class="text-gray-500 mt-3">加载中...</p>
+        <p class="text-gray-500">加载中...</p>
       </div>
     </div>
     
     <div v-else>
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold text-gray-800">统计分析</h2>
-    </div>
-    
-    <div class="flex gap-2 mb-4">
-      <button 
-        v-for="tab in tabs" 
-        :key="tab.id"
-        @click="currentTab = tab.id"
-        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        :class="currentTab === tab.id ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-600'"
-      >
-        {{ tab.name }}
-      </button>
-    </div>
-    
-    <div v-if="currentTab === 'monthly'" class="mb-4">
-      <div class="flex items-center justify-center gap-4 bg-white rounded-lg p-3 mb-4">
-        <select 
-          v-model="currentYear"
-          class="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">统计分析</h2>
+      </div>
+      
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button 
+          v-for="tab in tabs" 
+          :key="tab.id"
+          @click="currentTab = tab.id; handleTabChange(tab.id)"
+          class="px-4 py-2 rounded-lg text-sm font-medium transition-all touch-manipulation"
+          :class="currentTab === tab.id ? 'bg-primary-500 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
         >
-          <option v-for="year in availableYears" :key="year" :value="year">{{ year }}年</option>
-        </select>
-        <select 
-          v-model="currentMonth"
-          class="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option v-for="month in months" :key="month.value" :value="month.value">{{ month.label }}</option>
-        </select>
+          {{ tab.name }}
+        </button>
       </div>
       
-      <div class="task-card mb-4">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-medium text-gray-800">月度打卡趋势</h3>
-          <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+      <div v-if="currentTab === 'monthly'" class="mb-4">
+        <div class="task-card mb-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium text-gray-800">月度打卡趋势</h3>
             <button 
-              @click="monthlyChartType = 'line'"
-              class="px-3 py-1 rounded text-xs font-medium transition-all"
-              :class="monthlyChartType === 'line' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+              @click="showMonthlyDatePicker = true"
+              class="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[130px] justify-center"
             >
-              折线图
+              <span class="text-sm font-medium text-gray-700">{{ currentYear }}年{{ months[currentMonth - 1]?.label }}</span>
+              <ChevronDown class="w-4 h-4 text-gray-400" />
             </button>
-            <button 
-              @click="monthlyChartType = 'bar'"
-              class="px-3 py-1 rounded text-xs font-medium transition-all"
-              :class="monthlyChartType === 'bar' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
-            >
-              柱状图
-            </button>
-          </div>
-        </div>
-        <div class="h-48">
-          <Line v-if="monthlyChartType === 'line'" :data="monthlyChartData" :options="lineOptions" />
-          <Bar v-else :data="monthlyChartData" :options="barOptions" />
-        </div>
-      </div>
-      
-      <div class="task-card">
-        <h3 class="font-medium text-gray-800 mb-3">任务完成情况</h3>
-        <div v-if="monthlyStats.length === 0" class="text-center py-8 text-gray-400">
-          暂无数据
-        </div>
-        <div v-else class="space-y-3">
-          <div v-for="stat in monthlyStats" :key="stat.task.id" class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div 
-                class="w-3 h-3 rounded-full mr-2"
-                :style="{ backgroundColor: stat.task.color }"
-              ></div>
-              <span class="text-gray-700">{{ stat.task.name }}</span>
-            </div>
-            <div class="text-right">
-              <div class="font-medium text-gray-800">{{ stat.completedCount }}/{{ stat.totalDays }}</div>
-              <div class="text-xs text-gray-400">{{ stat.completionRate }}%</div>
+            <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+              <button 
+                @click="monthlyChartType = 'line'"
+                class="px-3 py-1 rounded text-xs font-medium transition-all touch-manipulation"
+                :class="monthlyChartType === 'line' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+              >
+                折线图
+              </button>
+              <button 
+                @click="monthlyChartType = 'bar'"
+                class="px-3 py-1 rounded text-xs font-medium transition-all touch-manipulation"
+                :class="monthlyChartType === 'bar' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+              >
+                柱状图
+              </button>
             </div>
           </div>
-        </div>
-      </div>
-      
-      <div class="task-card">
-        <h3 class="font-medium text-gray-800 mb-3">完美打卡</h3>
-        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4">
-          <div class="flex items-center justify-center gap-8">
-            <div class="text-center">
-              <div class="text-3xl font-bold text-purple-600">{{ monthlyPerfectDays.length }}</div>
-              <div class="text-xs text-gray-500 mt-1">完美打卡天数</div>
-            </div>
-            <div class="w-px h-10 bg-gray-300"></div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-pink-500">{{ monthlyPerfectRate }}%</div>
-              <div class="text-xs text-gray-500 mt-1">完美打卡率</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div v-else-if="currentTab === 'yearly'" class="mb-4">
-      <div class="flex items-center justify-center gap-4 bg-white rounded-lg p-3 mb-4">
-        <select 
-          v-model="currentYear"
-          class="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option v-for="year in availableYears" :key="year" :value="year">{{ year }}年</option>
-        </select>
-      </div>
-      
-      <div class="task-card mb-4">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-medium text-gray-800">年度打卡趋势</h3>
-          <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-            <button 
-              @click="yearlyChartType = 'line'"
-              class="px-3 py-1 rounded text-xs font-medium transition-all"
-              :class="yearlyChartType === 'line' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
-            >
-              折线图
-            </button>
-            <button 
-              @click="yearlyChartType = 'bar'"
-              class="px-3 py-1 rounded text-xs font-medium transition-all"
-              :class="yearlyChartType === 'bar' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
-            >
-              柱状图
-            </button>
-          </div>
-        </div>
-        <div class="h-48">
-          <Line v-if="yearlyChartType === 'line'" :data="yearlyChartData" :options="lineOptions" />
-          <Bar v-else :data="yearlyChartData" :options="barOptions" />
-        </div>
-      </div>
-      
-      <div class="task-card">
-        <h3 class="font-medium text-gray-800 mb-3">任务完成情况</h3>
-        <div v-if="yearlyStats.length === 0" class="text-center py-8 text-gray-400">
-          暂无数据
-        </div>
-        <div v-else class="space-y-3">
-          <div v-for="stat in yearlyStats" :key="stat.task.id" class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div 
-                class="w-3 h-3 rounded-full mr-2"
-                :style="{ backgroundColor: stat.task.color }"
-              ></div>
-              <span class="text-gray-700">{{ stat.task.name }}</span>
-            </div>
-            <div class="text-right">
-              <div class="font-medium text-gray-800">{{ stat.completedCount }}/{{ stat.totalDays }}</div>
-              <div class="text-xs text-gray-400">{{ stat.completionRate }}%</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="task-card">
-        <h3 class="font-medium text-gray-800 mb-3">完美打卡</h3>
-        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4">
-          <div class="flex items-center justify-center gap-8">
-            <div class="text-center">
-              <div class="text-3xl font-bold text-purple-600">{{ yearlyPerfectDays.length }}</div>
-              <div class="text-xs text-gray-500 mt-1">完美打卡天数</div>
-            </div>
-            <div class="w-px h-10 bg-gray-300"></div>
-            <div class="text-center">
-              <div class="text-3xl font-bold text-pink-500">{{ yearlyPerfectRate }}%</div>
-              <div class="text-xs text-gray-500 mt-1">完美打卡率</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div v-else class="mb-4">
-      <div class="task-card mb-4">
-        <h3 class="font-medium text-gray-800 mb-3">选择任务</h3>
-        <div class="flex flex-wrap gap-2">
-          <button 
-            v-for="task in tasks" 
-            :key="task.id"
-            @click="selectedTaskId = task.id; viewPerfectMode = false"
-            class="px-3 py-1.5 rounded-full text-sm transition-all"
-            :class="selectedTaskId === task.id && !viewPerfectMode ? 'text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            :style="selectedTaskId === task.id && !viewPerfectMode ? { backgroundColor: task.color } : {}"
-          >
-            {{ task.name }}
-          </button>
-          <button 
-            @click="viewPerfectMode = true; selectedTaskId = null"
-            class="px-3 py-1.5 rounded-full text-sm transition-all"
-            :class="viewPerfectMode ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-          >
-            ✨ 完美打卡
-          </button>
-        </div>
-      </div>
-      
-      <div v-if="selectedTask && !viewPerfectMode" class="task-card">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-medium text-gray-800">{{ selectedTask.name }} - 打卡日历</h3>
-          <div class="flex items-center gap-2">
-            <select 
-              v-model="taskYear"
-              class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option v-for="year in availableYears" :key="year" :value="year">{{ year }}年</option>
-            </select>
-            <select 
-              v-model="taskMonth"
-              class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option v-for="month in months" :key="month.value" :value="month.value">{{ month.label }}</option>
-            </select>
+          <div class="h-48">
+            <Line v-if="monthlyChartType === 'line'" :data="monthlyChartData" :options="lineOptions" />
+            <Bar v-else :data="monthlyChartData" :options="barOptions" />
           </div>
         </div>
         
-        <div 
-          class="rounded-lg p-4"
-          :style="getCalendarContainerStyle()"
-        >
-          <div class="grid grid-cols-7 gap-1 mb-2">
-            <div 
-              v-for="day in weekDays" 
-              :key="day"
-              class="text-center text-xs font-medium text-gray-500 py-1"
+        <div class="task-card">
+          <h3 class="font-medium text-gray-800 mb-3">任务完成情况</h3>
+          <div v-if="monthlyStats.length === 0" class="text-center py-8 text-gray-400">
+            暂无数据
+          </div>
+          <div v-else class="space-y-3">
+            <div v-for="stat in monthlyStats" :key="stat.task.id" class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="flex items-center">
+                <div 
+                  class="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                  :style="{ backgroundColor: stat.task.color }"
+                ></div>
+                <span class="text-gray-700 truncate">{{ stat.task.name }}</span>
+              </div>
+              <div class="text-right flex-shrink-0 ml-2">
+                <div class="font-medium text-gray-800">{{ stat.completedCount }}/{{ stat.totalDays }}</div>
+                <div class="text-xs text-gray-400">{{ stat.completionRate }}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <h3 class="font-medium text-gray-800 mb-3">完美打卡</h3>
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
+            <div class="flex items-center justify-center gap-8">
+              <div class="text-center">
+                <div class="text-3xl font-bold text-purple-600">{{ monthlyPerfectDays.length }}</div>
+                <div class="text-xs text-gray-500 mt-1">完美打卡天数</div>
+              </div>
+              <div class="w-px h-10 bg-gray-300"></div>
+              <div class="text-center">
+                <div class="text-3xl font-bold text-pink-500">{{ monthlyPerfectRate }}%</div>
+                <div class="text-xs text-gray-500 mt-1">完美打卡率</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div v-else-if="currentTab === 'yearly'" class="mb-4">
+        <div class="task-card mb-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium text-gray-800">年度打卡趋势</h3>
+            <button 
+              @click="showYearlyYearPicker = true"
+              class="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[100px] justify-center"
             >
-              {{ day }}
+              <span class="text-sm font-medium text-gray-700">{{ currentYear }}年</span>
+              <ChevronDown class="w-4 h-4 text-gray-400" />
+            </button>
+            <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+              <button 
+                @click="yearlyChartType = 'line'"
+                class="px-3 py-1 rounded text-xs font-medium transition-all touch-manipulation"
+                :class="yearlyChartType === 'line' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+              >
+                折线图
+              </button>
+              <button 
+                @click="yearlyChartType = 'bar'"
+                class="px-3 py-1 rounded text-xs font-medium transition-all touch-manipulation"
+                :class="yearlyChartType === 'bar' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+              >
+                柱状图
+              </button>
+            </div>
+          </div>
+          <div class="h-48">
+            <Line v-if="yearlyChartType === 'line'" :data="yearlyChartData" :options="lineOptions" />
+            <Bar v-else :data="yearlyChartData" :options="barOptions" />
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <h3 class="font-medium text-gray-800 mb-3">任务完成情况</h3>
+          <div v-if="yearlyStats.length === 0" class="text-center py-8 text-gray-400">
+            暂无数据
+          </div>
+          <div v-else class="space-y-3">
+            <div v-for="stat in yearlyStats" :key="stat.task.id" class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="flex items-center">
+                <div 
+                  class="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                  :style="{ backgroundColor: stat.task.color }"
+                ></div>
+                <span class="text-gray-700 truncate">{{ stat.task.name }}</span>
+              </div>
+              <div class="text-right flex-shrink-0 ml-2">
+                <div class="font-medium text-gray-800">{{ stat.completedCount }}/{{ stat.totalDays }}</div>
+                <div class="text-xs text-gray-400">{{ stat.completionRate }}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="task-card">
+          <h3 class="font-medium text-gray-800 mb-3">完美打卡</h3>
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
+            <div class="flex items-center justify-center gap-8">
+              <div class="text-center">
+                <div class="text-3xl font-bold text-purple-600">{{ yearlyPerfectDays.length }}</div>
+                <div class="text-xs text-gray-500 mt-1">完美打卡天数</div>
+              </div>
+              <div class="w-px h-10 bg-gray-300"></div>
+              <div class="text-center">
+                <div class="text-3xl font-bold text-pink-500">{{ yearlyPerfectRate }}%</div>
+                <div class="text-xs text-gray-500 mt-1">完美打卡率</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div v-else class="mb-4">
+        <div class="task-card mb-4">
+          <h3 class="font-medium text-gray-800 mb-3">选择任务</h3>
+          <div class="flex flex-wrap gap-2">
+            <button 
+              v-for="task in tasks" 
+              :key="task.id"
+              @click="selectedTaskId = task.id; viewPerfectMode = false"
+              class="px-3 py-1.5 rounded-full text-sm transition-all touch-manipulation"
+              :class="selectedTaskId === task.id && !viewPerfectMode ? 'text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              :style="selectedTaskId === task.id && !viewPerfectMode ? { backgroundColor: task.color } : {}"
+            >
+              {{ task.name }}
+            </button>
+            <button 
+              @click="viewPerfectMode = true; selectedTaskId = null"
+              class="px-3 py-1.5 rounded-full text-sm transition-all touch-manipulation"
+              :class="viewPerfectMode ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            >
+              ✨ 完美打卡
+            </button>
+          </div>
+        </div>
+        
+        <div v-if="selectedTask && !viewPerfectMode" class="task-card">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium text-gray-800">{{ selectedTask.name }} - 打卡日历</h3>
+            <button 
+              @click="showTaskDatePicker = true"
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[130px] justify-center"
+            >
+              <span class="text-sm font-medium text-gray-700">{{ taskYear }}年{{ months[taskMonth - 1]?.label }}</span>
+              <ChevronDown class="w-3 h-3 text-gray-400" />
+            </button>
+          </div>
+          
+          <div 
+            class="rounded-xl p-4"
+            :style="getCalendarContainerStyle()"
+          >
+            <div class="grid grid-cols-7 gap-1 mb-2">
+              <div 
+                v-for="day in weekDays" 
+                :key="day"
+                class="text-center text-xs font-medium text-gray-500 py-1"
+              >
+                {{ day }}
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-7 gap-1">
+              <div 
+                v-for="(day, index) in calendarDays" 
+                :key="index"
+                class="aspect-square flex items-center justify-center rounded-full text-xs font-medium transition-all touch-manipulation relative"
+                :class="getCalendarDayClass(day)"
+                :style="getCalendarDayStyle(day)"
+                :title="day ? getDayTitle(day) : ''"
+              >
+                <span v-if="day">{{ day.day }}</span>
+                <span 
+                  v-if="day && day.isCompleted" 
+                  class="absolute bottom-1 w-1.5 h-1.5 rounded-full" 
+                  :style="{ backgroundColor: selectedTask?.color || '#10b981' }"
+                ></span>
+              </div>
             </div>
           </div>
           
-          <div class="grid grid-cols-7 gap-1">
-            <div 
-              v-for="(day, index) in calendarDays" 
-              :key="index"
-              class="aspect-square flex items-center justify-center rounded-full text-xs font-medium transition-colors relative"
-              :class="getCalendarDayClass(day)"
-              :style="getCalendarDayStyle(day)"
-              :title="day ? getDayTitle(day) : ''"
-            >
-              <span v-if="day">{{ day.day }}</span>
-              <span 
-                v-if="day && day.isCompleted" 
-                class="absolute bottom-1 w-1.5 h-1.5 rounded-full" 
-                :style="{ backgroundColor: selectedTask?.color || '#10b981' }"
-              ></span>
+          <div class="mt-4 pt-4 border-t">
+            <div class="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div class="text-2xl font-bold" :style="{ color: selectedTask.color }">{{ taskStats.completedCount }}</div>
+                <div class="text-xs text-gray-500">完成天数</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-rose-300">{{ taskStats.consecutiveCount }}</div>
+                <div class="text-xs text-gray-500">连续打卡</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-blue-700">{{ taskStats.cumulativeCount }}</div>
+                <div class="text-xs text-gray-500">累计打卡</div>
+              </div>
             </div>
           </div>
         </div>
         
-        <div class="mt-4 pt-4 border-t">
-          <div class="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div class="text-2xl font-bold" :style="{ color: selectedTask.color }">{{ taskStats.completedCount }}</div>
-              <div class="text-xs text-gray-500">完成天数</div>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-rose-300">{{ taskStats.consecutiveCount }}</div>
-              <div class="text-xs text-gray-500">连续打卡</div>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-blue-700">{{ taskStats.cumulativeCount }}</div>
-              <div class="text-xs text-gray-500">累计打卡</div>
-            </div>
+        <div v-else-if="viewPerfectMode" class="task-card">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium text-gray-800">✨ 完美打卡日历</h3>
+            <button 
+              @click="showTaskDatePicker = true"
+              class="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[130px] justify-center"
+            >
+              <span class="text-sm font-medium text-gray-700">{{ taskYear }}年{{ months[taskMonth - 1]?.label }}</span>
+              <ChevronDown class="w-4 h-4 text-gray-400" />
+            </button>
           </div>
-        </div>
-      </div>
-      
-      <div v-else-if="viewPerfectMode" class="task-card">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-medium text-gray-800">✨ 完美打卡日历</h3>
-          <div class="flex items-center gap-2">
-            <select 
-              v-model="taskYear"
-              class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option v-for="year in availableYears" :key="year" :value="year">{{ year }}年</option>
-            </select>
-            <select 
-              v-model="taskMonth"
-              class="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option v-for="month in months" :key="month.value" :value="month.value">{{ month.label }}</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4">
-          <div class="grid grid-cols-7 gap-1 mb-2">
-            <div 
-              v-for="day in weekDays" 
-              :key="day"
-              class="text-center text-xs font-medium text-gray-500 py-1"
-            >
-              {{ day }}
+          
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
+            <div class="grid grid-cols-7 gap-1 mb-2">
+              <div 
+                v-for="day in weekDays" 
+                :key="day"
+                class="text-center text-xs font-medium text-gray-500 py-1"
+              >
+                {{ day }}
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-7 gap-1">
+              <div 
+                v-for="(day, index) in perfectDaysCalendar" 
+                :key="index"
+                class="aspect-square flex items-center justify-center rounded-full text-xs font-medium transition-all touch-manipulation relative"
+                :class="getPerfectDayClass(day)"
+                :style="getPerfectDayStyle(day)"
+                :title="day ? getPerfectDayTitle(day) : ''"
+              >
+                <span v-if="day">{{ day.day }}</span>
+                <span v-if="day && day.isPerfect" class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+              </div>
             </div>
           </div>
           
-          <div class="grid grid-cols-7 gap-1">
-            <div 
-              v-for="(day, index) in perfectDaysCalendar" 
-              :key="index"
-              class="aspect-square flex items-center justify-center rounded-full text-xs font-medium transition-colors relative"
-              :class="getPerfectDayClass(day)"
-              :style="getPerfectDayStyle(day)"
-              :title="day ? getPerfectDayTitle(day) : ''"
-            >
-              <span v-if="day">{{ day.day }}</span>
-              <span v-if="day && day.isPerfect" class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+          <div class="mt-4 pt-4 border-t">
+            <div class="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div class="text-2xl font-bold text-purple-600">{{ perfectDaysCount }}</div>
+                <div class="text-xs text-gray-500">完成天数</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-rose-300">{{ perfectConsecutiveCount }}</div>
+                <div class="text-xs text-gray-500">连续打卡</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-blue-700">{{ perfectCumulativeCount }}</div>
+                <div class="text-xs text-gray-500">累计打卡</div>
+              </div>
             </div>
           </div>
         </div>
         
-        <div class="mt-4 pt-4 border-t">
-          <div class="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div class="text-2xl font-bold text-purple-600">{{ perfectDaysCount }}</div>
-              <div class="text-xs text-gray-500">完成天数</div>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-rose-300">{{ perfectConsecutiveCount }}</div>
-              <div class="text-xs text-gray-500">连续打卡</div>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-blue-700">{{ perfectCumulativeCount }}</div>
-              <div class="text-xs text-gray-500">累计打卡</div>
-            </div>
+        <div v-else class="task-card">
+          <div class="text-center py-8 text-gray-400">
+            <Calendar class="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <div>请选择一个任务查看统计</div>
           </div>
         </div>
       </div>
-      
-      <div v-else class="task-card">
-        <div class="text-center py-8 text-gray-400">
-          <Calendar class="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <div>请选择一个任务查看统计</div>
-        </div>
-      </div>
     </div>
-    </div>
+    
+    <MobileDatePicker 
+      :visible="showMonthlyDatePicker"
+      :model-value="new Date(currentYear, currentMonth - 1, 1)"
+      title="选择年月"
+      @update:visible="showMonthlyDatePicker = false"
+      @confirm="handleMonthlyDateSelect"
+    />
+    
+    <MobileDatePicker 
+      :visible="showYearlyYearPicker"
+      :model-value="new Date(currentYear, 0, 1)"
+      mode="year"
+      title="选择年份"
+      @update:visible="showYearlyYearPicker = false"
+      @confirm="handleYearlyYearSelect"
+    />
+    
+    <MobileDatePicker 
+      :visible="showTaskDatePicker"
+      :model-value="new Date(taskYear, taskMonth - 1, 1)"
+      title="选择年月"
+      @update:visible="showTaskDatePicker = false"
+      @confirm="handleTaskDateSelect"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Calendar, Loader2, Plus } from 'lucide-vue-next'
+import { Calendar, Loader2, ChevronDown } from 'lucide-vue-next'
 import { appState, tasks, records, getMonthlyStats, getYearlyStats, getDailyStatsForMonth, getTaskStats, getPerfectDaysForMonth, getPerfectDaysForYear, getPerfectDaysCalendar } from '../stores/taskStore'
 import { user } from '../stores/userStore'
 import { Line, Bar } from 'vue-chartjs'
@@ -368,6 +369,7 @@ import {
   PointElement,
   Filler
 } from 'chart.js'
+import MobileDatePicker from './MobileDatePicker.vue'
 
 ChartJS.register(
   CategoryScale,
@@ -385,13 +387,17 @@ const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 
 const currentYear = ref(new Date().getFullYear())
 const currentMonth = ref(new Date().getMonth() + 1)
-const currentTab = ref('monthly')
+const currentTab = ref('task')
 const selectedTaskId = ref(tasks[0]?.id || null)
 const taskYear = ref(new Date().getFullYear())
 const taskMonth = ref(new Date().getMonth() + 1)
 const viewPerfectMode = ref(false)
 const monthlyChartType = ref('line')
 const yearlyChartType = ref('line')
+
+const showMonthlyDatePicker = ref(false)
+const showYearlyYearPicker = ref(false)
+const showTaskDatePicker = ref(false)
 
 const currentYearNum = computed(() => Number(currentYear.value))
 const currentMonthNum = computed(() => Number(currentMonth.value))
@@ -423,10 +429,35 @@ const availableYears = computed(() => {
 })
 
 const tabs = [
+  { id: 'task', name: '任务日历' },
   { id: 'monthly', name: '月度统计' },
-  { id: 'yearly', name: '年度统计' },
-  { id: 'task', name: '任务日历' }
+  { id: 'yearly', name: '年度统计' }
 ]
+
+function handleTabChange(tabId) {
+  switch (tabId) {
+    case 'monthly':
+      break
+    case 'yearly':
+      break
+    case 'task':
+      break
+  }
+}
+
+function handleMonthlyDateSelect(date) {
+  currentYear.value = date.getFullYear()
+  currentMonth.value = date.getMonth() + 1
+}
+
+function handleYearlyYearSelect(date) {
+  currentYear.value = date.getFullYear()
+}
+
+function handleTaskDateSelect(date) {
+  taskYear.value = date.getFullYear()
+  taskMonth.value = date.getMonth() + 1
+}
 
 const monthlyStats = computed(() => {
   const stats = getMonthlyStats(currentYearNum.value, currentMonthNum.value)
@@ -580,7 +611,6 @@ const perfectConsecutiveCount = computed(() => {
 })
 
 const perfectCumulativeCount = computed(() => {
-  const allDailyStats = getDailyStatsForMonth(taskYear.value, 1)
   let cumulative = 0
   for (let month = 1; month <= 12; month++) {
     const monthlyStats = getDailyStatsForMonth(taskYear.value, month)
@@ -693,5 +723,4 @@ const barOptions = {
     }
   }
 }
-
 </script>

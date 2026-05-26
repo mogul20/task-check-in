@@ -11,60 +11,97 @@
     <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-5 mb-5 border border-white/50">
       
       <template v-if="!showCalendar">
-        <div class="flex items-center justify-between mb-5">
-          <div class="flex items-center gap-3">
-            <button 
-              @click="prevWeek"
-              class="p-2.5 rounded-xl transition-all duration-200 text-gray-600 hover:bg-gradient-to-r from-blue-50 to-purple-50 hover:text-blue-600 active:scale-95"
-            >
-              <ChevronLeft class="w-5 h-5" />
-            </button>
-            <div class="flex flex-col items-center">
-              <span class="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ monthStr }}</span>
-              <span class="text-xs text-gray-500">{{ displayDateStatus }}</span>
+        <div @click.self="showYearMonthPicker = false" class="relative">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-3">
+              <button 
+                @click="prevWeek"
+                class="p-2.5 rounded-xl transition-all duration-200 text-gray-600 hover:bg-gradient-to-r from-blue-50 to-purple-50 hover:text-blue-600 active:scale-95"
+              >
+                <ChevronLeft class="w-5 h-5" />
+              </button>
+              <button 
+                @click="showYearMonthPicker = !showYearMonthPicker"
+                class="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <span class="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ monthStr }}</span>
+              </button>
+              <button 
+                @click="nextWeek"
+                class="p-2.5 rounded-xl transition-all duration-200 text-gray-600 hover:bg-gradient-to-r from-blue-50 to-purple-50 hover:text-blue-600 active:scale-95"
+              >
+                <ChevronRight class="w-5 h-5" />
+              </button>
             </div>
             <button 
-              @click="nextWeek"
-              class="p-2.5 rounded-xl transition-all duration-200 text-gray-600 hover:bg-gradient-to-r from-blue-50 to-purple-50 hover:text-blue-600 active:scale-95"
+              v-if="selectedDate !== todayStr"
+              @click="goToToday"
+              class="px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
             >
-              <ChevronRight class="w-5 h-5" />
-            </button>
+                回到今天
+              </button>
           </div>
-          <button 
-            v-if="selectedDate !== todayStr"
-            @click="goToToday"
-            class="px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95"
-          >
-            今天
-          </button>
-        </div>
-        
-        <div class="flex items-center justify-between mb-2">
-          <div class="flex-1 flex items-center gap-1">
+          
+          <div v-show="showYearMonthPicker" class="absolute z-50 left-4 right-4 mt-2 p-3 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 year-month-picker">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-gray-500 mb-1.5 text-center">年份</label>
+                <div ref="yearListRef" class="h-28 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                  <div 
+                    v-for="year in availableYears"
+                    :key="year"
+                    @click="selectYear(year)"
+                    class="py-2.5 text-center cursor-pointer transition-all duration-200 rounded-lg"
+                    :class="currentYear === year ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
+                  >
+                    {{ year }}年
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1.5 text-center">月份</label>
+                <div ref="monthListRef" class="h-28 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                  <div 
+                    v-for="month in 12"
+                    :key="month"
+                    @click="selectMonth(month)"
+                    class="py-2.5 text-center cursor-pointer transition-all duration-200 rounded-lg"
+                    :class="currentMonth === month ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
+                  >
+                    {{ month }}月
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex-1 flex items-center gap-0.5 sm:gap-1">
+              <button 
+                v-for="day in weekDays"
+                :key="day.date"
+                @click="selectDate(day.date)"
+                class="flex-1 flex flex-col items-center py-2 sm:py-3 px-1 sm:px-0 rounded-xl transition-all duration-300 min-w-[40px]"
+                :class="getDayButtonClass(day)"
+              >
+                <span class="text-[10px] sm:text-xs font-medium" :class="day.isToday ? 'text-blue-600' : 'text-gray-500'">{{ day.weekDay }}</span>
+                <span class="text-base sm:text-lg font-bold" :class="day.isToday ? 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent' : ''">{{ day.day }}</span>
+                <div 
+                  v-if="day.isPerfect" 
+                  class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mt-1 sm:mt-1.5 bg-gradient-to-r from-purple-500 to-pink-500"
+                ></div>
+              </button>
+            </div>
+          </div>
+          
+          <div class="flex justify-center mt-3">
             <button 
-              v-for="day in weekDays"
-              :key="day.date"
-              @click="selectDate(day.date)"
-              class="flex-1 flex flex-col items-center py-3 rounded-xl transition-all duration-300"
-              :class="getDayButtonClass(day)"
+              @click="showCalendar = true; showYearMonthPicker = false"
+              class="p-2 rounded-full hover:bg-gray-100 transition-all duration-300"
             >
-              <span class="text-xs font-medium" :class="day.isToday ? 'text-blue-600' : 'text-gray-500'">{{ day.weekDay }}</span>
-              <span class="text-lg font-bold" :class="day.isToday ? 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent' : ''">{{ day.day }}</span>
-              <div 
-                v-if="day.isPerfect" 
-                class="w-2 h-2 rounded-full mt-1.5 bg-gradient-to-r from-purple-500 to-pink-500"
-              ></div>
+              <ChevronDown class="w-5 h-5 text-gray-500 transition-transform duration-300" />
             </button>
           </div>
-        </div>
-        
-        <div class="flex justify-center mt-3">
-          <button 
-            @click="showCalendar = true"
-            class="p-2 rounded-full hover:bg-gray-100 transition-all duration-300"
-          >
-            <ChevronDown class="w-5 h-5 text-gray-500 transition-transform duration-300" />
-          </button>
         </div>
       </template>
       
@@ -83,7 +120,6 @@
                 class="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity"
               >
                 <span class="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ monthStr }}</span>
-                <span v-if="showYearMonthPicker" class="text-xs text-gray-400">点击收起</span>
               </button>
               <button 
                 @click="nextMonth"
@@ -101,16 +137,16 @@
             </button>
           </div>
           
-          <div v-show="showYearMonthPicker" class="absolute z-50 left-4 right-4 mt-2 p-4 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50">
-            <div class="grid grid-cols-2 gap-4">
+          <div v-show="showYearMonthPicker" class="absolute z-50 left-4 right-4 mt-2 p-3 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 year-month-picker">
+            <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs text-gray-500 mb-2 text-center">选择年份</label>
-                <div ref="yearListRef" class="h-48 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                <label class="block text-xs text-gray-500 mb-1.5 text-center">年份</label>
+                <div ref="yearListRef" class="h-28 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
                   <div 
                     v-for="year in availableYears"
                     :key="year"
                     @click="selectYear(year)"
-                    class="py-3 text-center cursor-pointer transition-all duration-200 rounded-xl"
+                    class="py-2.5 text-center cursor-pointer transition-all duration-200 rounded-lg"
                     :class="currentYear === year ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
                   >
                     {{ year }}年
@@ -118,13 +154,13 @@
                 </div>
               </div>
               <div>
-                <label class="block text-xs text-gray-500 mb-2 text-center">选择月份</label>
-                <div ref="monthListRef" class="h-48 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                <label class="block text-xs text-gray-500 mb-1.5 text-center">月份</label>
+                <div ref="monthListRef" class="h-28 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
                   <div 
                     v-for="month in 12"
                     :key="month"
                     @click="selectMonth(month)"
-                    class="py-3 text-center cursor-pointer transition-all duration-200 rounded-xl"
+                    class="py-2.5 text-center cursor-pointer transition-all duration-200 rounded-lg"
                     :class="currentMonth === month ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
                   >
                     {{ month }}月
@@ -134,19 +170,19 @@
             </div>
           </div>
           
-          <div class="grid grid-cols-7 gap-1 text-center mb-3">
+          <div class="grid grid-cols-7 gap-2 text-center mb-4">
             <div 
               v-for="day in calendarDays"
               :key="day.date || day.day"
-              class="aspect-square flex flex-col items-center justify-center rounded-xl transition-all duration-300"
+              class="aspect-square flex flex-col items-center justify-center rounded-xl transition-all duration-300 py-1"
               :class="getCalendarDayClass(day)"
               @click="day.date && selectDate(day.date)"
             >
-              <span class="text-xs font-medium" :class="day.isToday ? 'text-blue-600' : 'text-gray-500'">{{ day.weekDay }}</span>
-              <span class="text-base font-bold">{{ day.day }}</span>
+              <span class="text-sm font-medium" :class="day.isToday ? 'text-blue-600' : 'text-gray-500'">{{ day.weekDay }}</span>
+              <span class="text-xl font-bold mt-0.5">{{ day.day }}</span>
               <div 
                 v-if="day.isPerfect" 
-                class="w-1.5 h-1.5 rounded-full mt-1 bg-gradient-to-r from-purple-500 to-pink-500"
+                class="w-2 h-2 rounded-full mt-1 bg-gradient-to-r from-purple-500 to-pink-500"
               ></div>
             </div>
           </div>
@@ -230,7 +266,7 @@
     <button 
       v-if="user.isLoggedIn"
       @click="showAddTaskModal = true"
-      class="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all duration-200 z-40"
+      class="fixed bottom-24 right-80 w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all duration-200 z-40"
     >
       <Plus class="w-7 h-7" />
     </button>
@@ -322,7 +358,6 @@
                     </div>
                   </div>
                   <div class="flex gap-2">
-                    <button @click="showAddTaskStartDate = false" class="flex-1 px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all duration-200">取消</button>
                     <button @click="saveAddTaskStartDate" class="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all duration-200">保存</button>
                   </div>
                 </div>
@@ -395,7 +430,6 @@
                     </div>
                   </div>
                   <div class="flex gap-2 mt-3">
-                    <button @click="showAddTaskEndDate = false" class="flex-1 px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all duration-200">取消</button>
                     <button @click="saveAddTaskEndDate" class="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all duration-200">保存</button>
                   </div>
                 </div>
@@ -420,12 +454,6 @@
 
         <div class="flex gap-3 mt-8">
           <button 
-            @click="showAddTaskModal = false; resetNewTask()" 
-            class="flex-1 px-4 py-3.5 bg-gray-100 text-gray-700 rounded-2xl font-semibold hover:bg-gray-200 transition-all duration-300"
-          >
-            取消
-          </button>
-          <button 
             @click="addNewTask" 
             class="flex-1 px-4 py-3.5 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl"
           >
@@ -446,8 +474,12 @@ import { user } from '../stores/userStore'
 
 const emit = defineEmits(['openDetail'])
 
+function formatDate(year, month, day) {
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
 const today = new Date()
-const todayStr = today.toISOString().split('T')[0]
+const todayStr = formatDate(today.getFullYear(), today.getMonth(), today.getDate())
 const selectedDate = ref(todayStr)
 const showDatePicker = ref(false)
 const showCalendar = ref(false)
@@ -661,7 +693,7 @@ const weekDays = computed(() => {
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday)
     d.setDate(monday.getDate() + i)
-    const dateStr = d.toISOString().split('T')[0]
+    const dateStr = formatDate(d.getFullYear(), d.getMonth(), d.getDate())
     const tasks = getTasksForDate(dateStr)
     const completedCount = tasks.filter(t => isCompleted(t.id, dateStr)).length
     const isPerfect = tasks.length > 0 && completedCount === tasks.length
@@ -721,7 +753,7 @@ const calendarDays = computed(() => {
   
   for (let day = 1; day <= daysInMonth; day++) {
     const d = new Date(year, month, day)
-    const dateStr = d.toISOString().split('T')[0]
+    const dateStr = formatDate(year, month, day)
     const tasks = getTasksForDate(dateStr)
     const completedCount = tasks.filter(t => isCompleted(t.id, dateStr)).length
     const isPerfect = tasks.length > 0 && completedCount === tasks.length
@@ -956,19 +988,36 @@ watch(showYearMonthPicker, async (newVal) => {
     if (yearListRef.value) {
       const yearIndex = availableYears.value.indexOf(currentYear.value)
       if (yearIndex !== -1) {
-        const itemHeight = 48
-        const scrollTop = yearIndex * itemHeight - (yearListRef.value.clientHeight / 2) + itemHeight / 2
+        const firstItem = yearListRef.value.querySelector('div')
+        const itemHeight = firstItem ? firstItem.offsetHeight : 36
+        const containerHeight = yearListRef.value.clientHeight
+        const scrollTop = yearIndex * itemHeight - (containerHeight / 2) + (itemHeight / 2)
         yearListRef.value.scrollTop = Math.max(0, scrollTop)
       }
     }
     
     if (monthListRef.value) {
-      const itemHeight = 48
-      const scrollTop = (currentMonth.value - 1) * itemHeight - (monthListRef.value.clientHeight / 2) + itemHeight / 2
+      const firstItem = monthListRef.value.querySelector('div')
+      const itemHeight = firstItem ? firstItem.offsetHeight : 36
+      const containerHeight = monthListRef.value.clientHeight
+      const scrollTop = (currentMonth.value - 1) * itemHeight - (containerHeight / 2) + (itemHeight / 2)
       monthListRef.value.scrollTop = Math.max(0, scrollTop)
     }
+    
+    setTimeout(() => {
+      document.addEventListener('click', closeYearMonthPicker)
+    }, 0)
+  } else {
+    document.removeEventListener('click', closeYearMonthPicker)
   }
 })
+
+function closeYearMonthPicker(e) {
+  const picker = document.querySelector('.year-month-picker')
+  if (picker && !picker.contains(e.target)) {
+    showYearMonthPicker.value = false
+  }
+}
 
 function selectYear(year) {
   const date = new Date(selectedDate.value)

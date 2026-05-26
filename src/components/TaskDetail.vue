@@ -92,7 +92,7 @@
                 <ChevronRight class="w-4 h-4 text-gray-400 transition-transform duration-300" :class="{ 'rotate-90': expandedSection === 'name' }" />
               </div>
             </div>
-            <div v-if="expandedSection === 'name'" class="p-4 pt-0">
+            <div v-if="expandedSection === 'name'" class="p-4 pt-0 expanded-section">
               <input
                 v-model="editForm.name"
                 class="w-full px-4 py-3 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
@@ -100,9 +100,6 @@
                 @keyup.enter="saveName"
               />
               <div class="flex gap-2 mt-3">
-                <button @click="expandedSection = null" class="flex-1 px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all duration-200">
-                  取消
-                </button>
                 <button @click="saveName" class="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200">
                   保存
                 </button>
@@ -121,7 +118,7 @@
                 <ChevronRight class="w-4 h-4 text-gray-400 transition-transform duration-300" :class="{ 'rotate-90': expandedSection === 'description' }" />
               </div>
             </div>
-            <div v-if="expandedSection === 'description'" class="p-4 pt-0">
+            <div v-if="expandedSection === 'description'" class="p-4 pt-0 expanded-section">
               <textarea
                 v-model="editForm.description"
                 class="w-full px-4 py-3 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-none"
@@ -129,9 +126,6 @@
                 placeholder="请输入任务描述"
               ></textarea>
               <div class="flex gap-2 mt-3">
-                <button @click="expandedSection = null" class="flex-1 px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all duration-200">
-                  取消
-                </button>
                 <button @click="saveDescription" class="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200">
                   保存
                 </button>
@@ -150,20 +144,20 @@
                 <ChevronRight class="w-4 h-4 text-gray-400 transition-transform duration-300" :class="{ 'rotate-90': expandedSection === 'startDate' }" />
               </div>
             </div>
-            <div v-if="expandedSection === 'startDate'" class="p-4 pt-0">
+            <div v-if="expandedSection === 'startDate'" class="p-4 pt-0 expanded-section">
               <div v-if="dateError" class="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium">
                 {{ dateError }}
               </div>
-              <div class="bg-white rounded-xl p-5 mb-3">
-                <div class="grid grid-cols-3 gap-4">
+              <div class="bg-white rounded-xl p-4 mb-3">
+                <div class="grid grid-cols-3 gap-3">
                   <div class="text-center">
-                    <div class="text-sm text-gray-600 font-semibold mb-3">年</div>
-                    <div ref="startDateYearList" class="h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                    <div class="text-xs text-gray-600 font-semibold mb-2">年</div>
+                    <div ref="startDateYearList" class="h-28 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
                       <div
                         v-for="year in availableYears"
                         :key="year"
                         @click="selectStartDateYear(year)"
-                        class="h-11 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg"
+                        class="h-9 flex items-center justify-center text-base cursor-pointer transition-all duration-200 rounded-lg"
                         :class="startDateYear === year ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow-md' : 'hover:bg-gray-100 text-gray-700'"
                       >
                         {{ year }}
@@ -171,13 +165,13 @@
                     </div>
                   </div>
                   <div class="text-center">
-                    <div class="text-sm text-gray-600 font-semibold mb-3">月</div>
-                    <div ref="startDateMonthList" class="h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                    <div class="text-xs text-gray-600 font-semibold mb-2">月</div>
+                    <div ref="startDateMonthList" class="h-28 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
                       <div
                         v-for="month in 12"
                         :key="month"
                         @click="selectStartDateMonth(month)"
-                        class="h-11 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg"
+                        class="h-9 flex items-center justify-center text-base cursor-pointer transition-all duration-200 rounded-lg"
                         :class="startDateMonth === month ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow-md' : 'hover:bg-gray-100 text-gray-700'"
                       >
                         {{ month }}
@@ -185,13 +179,13 @@
                     </div>
                   </div>
                   <div class="text-center">
-                    <div class="text-sm text-gray-600 font-semibold mb-3">日</div>
-                    <div ref="startDateDayList" class="h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                    <div class="text-xs text-gray-600 font-semibold mb-2">日</div>
+                    <div ref="startDateDayList" class="h-28 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
                       <div
                         v-for="day in getDaysInMonth(startDateYear, startDateMonth)"
                         :key="day"
                         @click="selectStartDateDay(day)"
-                        class="h-11 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg"
+                        class="h-9 flex items-center justify-center text-base cursor-pointer transition-all duration-200 rounded-lg"
                         :class="startDateDay === day ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow-md' : 'hover:bg-gray-100 text-gray-700'"
                       >
                         {{ day }}
@@ -201,9 +195,6 @@
                 </div>
               </div>
               <div class="flex gap-2">
-                <button @click="expandedSection = null" class="flex-1 px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all duration-200">
-                  取消
-                </button>
                 <button @click="saveStartDate" class="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200">
                   保存
                 </button>
@@ -222,7 +213,7 @@
                 <ChevronRight class="w-4 h-4 text-gray-400 transition-transform duration-300" :class="{ 'rotate-90': expandedSection === 'endDate' }" />
               </div>
             </div>
-            <div v-if="expandedSection === 'endDate'" class="p-4 pt-0">
+            <div v-if="expandedSection === 'endDate'" class="p-4 pt-0 expanded-section">
               <div v-if="dateError" class="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium">
                 {{ dateError }}
               </div>
@@ -236,16 +227,16 @@
                 >
                   设为长期
                 </button>
-                <div class="bg-white rounded-xl p-5" :class="{ 'opacity-50': endDateIsLongTerm }">
-                  <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white rounded-xl p-4" :class="{ 'opacity-50': endDateIsLongTerm }">
+                  <div class="grid grid-cols-3 gap-3">
                     <div class="text-center">
-                      <div class="text-sm text-gray-600 font-semibold mb-3">年</div>
-                      <div ref="endDateYearList" class="h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                      <div class="text-xs text-gray-600 font-semibold mb-2">年</div>
+                      <div ref="endDateYearList" class="h-28 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
                         <div
                           v-for="year in availableYears"
                           :key="year"
                           @click="selectEndDateYear(year)"
-                          class="h-11 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg"
+                          class="h-9 flex items-center justify-center text-base cursor-pointer transition-all duration-200 rounded-lg"
                           :class="endDateYear === year ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow-md' : 'hover:bg-gray-100 text-gray-700'"
                         >
                           {{ year }}
@@ -253,13 +244,13 @@
                       </div>
                     </div>
                     <div class="text-center">
-                      <div class="text-sm text-gray-600 font-semibold mb-3">月</div>
-                      <div ref="endDateMonthList" class="h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                      <div class="text-xs text-gray-600 font-semibold mb-2">月</div>
+                      <div ref="endDateMonthList" class="h-28 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
                         <div
                           v-for="month in 12"
                           :key="month"
                           @click="selectEndDateMonth(month)"
-                          class="h-11 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg"
+                          class="h-9 flex items-center justify-center text-base cursor-pointer transition-all duration-200 rounded-lg"
                           :class="endDateMonth === month ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow-md' : 'hover:bg-gray-100 text-gray-700'"
                         >
                           {{ month }}
@@ -267,13 +258,13 @@
                       </div>
                     </div>
                     <div class="text-center">
-                      <div class="text-sm text-gray-600 font-semibold mb-3">日</div>
-                      <div ref="endDateDayList" class="h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50">
+                      <div class="text-xs text-gray-600 font-semibold mb-2">日</div>
+                      <div ref="endDateDayList" class="h-28 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
                         <div
                           v-for="day in getDaysInMonth(endDateYear, endDateMonth)"
                           :key="day"
                           @click="selectEndDateDay(day)"
-                          class="h-11 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg"
+                          class="h-9 flex items-center justify-center text-base cursor-pointer transition-all duration-200 rounded-lg"
                           :class="endDateDay === day ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow-md' : 'hover:bg-gray-100 text-gray-700'"
                         >
                           {{ day }}
@@ -284,9 +275,6 @@
                 </div>
               </div>
               <div class="flex gap-2">
-                <button @click="expandedSection = null" class="flex-1 px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all duration-200">
-                  取消
-                </button>
                 <button @click="saveEndDate" class="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200">
                   保存
                 </button>
@@ -308,7 +296,7 @@
                 <ChevronRight class="w-4 h-4 text-gray-400 transition-transform duration-300" :class="{ 'rotate-90': expandedSection === 'color' }" />
               </div>
             </div>
-            <div v-if="expandedSection === 'color'" class="p-4 pt-0">
+            <div v-if="expandedSection === 'color'" class="p-4 pt-0 expanded-section">
               <div class="flex flex-wrap gap-3 mb-3">
                 <button
                   v-for="color in colors"
@@ -320,9 +308,6 @@
                 ></button>
               </div>
               <div class="flex gap-2">
-                <button @click="expandedSection = null" class="flex-1 px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all duration-200">
-                  取消
-                </button>
                 <button @click="saveColor" class="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200">
                   保存
                 </button>
@@ -584,8 +569,21 @@ watch(expandedSection, async (newSection) => {
       const dayOptions = Array.from({length: dayCount}, (_, i) => i + 1)
       scrollToCenter(endDateDayList.value, endDateDay.value, dayOptions)
     }
+    
+    setTimeout(() => {
+      document.addEventListener('click', closeExpandedSection)
+    }, 0)
+  } else {
+    document.removeEventListener('click', closeExpandedSection)
   }
 })
+
+function closeExpandedSection(e) {
+  const expandedPanel = document.querySelector('.expanded-section')
+  if (expandedPanel && !expandedPanel.contains(e.target)) {
+    expandedSection.value = null
+  }
+}
 
 function getDayStatusClass(day) {
   if (day.completed) {
@@ -615,7 +613,7 @@ function scrollToCenter(element, value, options) {
   if (!element) return
   const index = options.indexOf(value)
   if (index !== -1) {
-    const itemHeight = 44
+    const itemHeight = 36
     const containerHeight = element.clientHeight
     const scrollTop = index * itemHeight - (containerHeight / 2) + (itemHeight / 2)
     element.scrollTop = Math.max(0, scrollTop)

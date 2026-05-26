@@ -11,7 +11,7 @@
     <template v-else>
       <nav class="bg-white/85 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div class="max-w-lg mx-auto px-4 py-4">
-          <h1 class="text-xl font-bold text-gray-800 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">每日任务打卡</h1>
+          <h1 class="text-xl font-bold text-gray-800 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">打卡菇</h1>
         </div>
       </nav>
       
