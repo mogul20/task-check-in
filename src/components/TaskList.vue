@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="relative">
     <div v-if="appState.isLoading" class="flex items-center justify-center py-16">
       <div class="flex flex-col items-center">
         <Loader2 class="w-8 h-8 text-blue-500 animate-spin" />
@@ -263,15 +263,11 @@
       </div>
     </div>
     
-    <button 
-      v-if="user.isLoggedIn"
-      @click="showAddTaskModal = true"
-      class="fixed bottom-24 right-80 w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all duration-200 z-40"
-    >
-      <Plus class="w-7 h-7" />
-    </button>
-    </div>
 
+    </div>
+    
+
+    
     <div v-if="showAddTaskModal" class="modal-overlay" @click.self="showAddTaskModal = false">
       <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-6 w-full max-w-md mx-4 border border-white/50">
         <div class="flex items-center justify-between mb-6">
@@ -489,7 +485,7 @@ const showAddTaskModal = ref(false)
 const yearListRef = ref(null)
 const monthListRef = ref(null)
 
-const taskColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16']
+const taskColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '##d7f0ef', '#84cc16']
 
 const newTask = ref({
   name: '',

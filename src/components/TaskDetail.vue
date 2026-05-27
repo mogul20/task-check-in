@@ -422,7 +422,7 @@ const props = defineProps({
 
 const emit = defineEmits(['back', 'updated'])
 
-const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16']
+const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '##d7f0ef', '#84cc16']
 
 const showCommentPage = ref(false)
 const expandedSection = ref(null)

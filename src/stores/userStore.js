@@ -2,11 +2,24 @@ import { reactive, watch } from 'vue'
 import { loginWithPhone as supabaseLogin, updateUserProfile, getVerificationCode as supabaseGetCode, resetPassword as supabaseResetPassword } from '../supabase/userService'
 
 const USER_KEY = 'daily-goal-user'
+const EXPIRATION_DAYS = 15
 
 function loadFromStorage(key, defaultValue) {
   try {
     const data = localStorage.getItem(key)
-    return data ? JSON.parse(data) : defaultValue
+    if (data) {
+      const parsed = JSON.parse(data)
+      if (parsed.isLoggedIn && parsed.lastLoginTime) {
+        const now = Date.now()
+        const lastLogin = new Date(parsed.lastLoginTime).getTime()
+        const diffDays = (now - lastLogin) / (1000 * 60 * 60 * 24)
+        if (diffDays > EXPIRATION_DAYS) {
+          return { ...defaultValue }
+        }
+      }
+      return parsed
+    }
+    return defaultValue
   } catch {
     return defaultValue
   }
@@ -21,7 +34,9 @@ export const user = reactive(loadFromStorage(USER_KEY, {
   userId: null,
   userName: '',
   avatar: '',
-  loginType: ''
+  loginType: '',
+  createdAt: '',
+  lastLoginTime: null
 }))
 
 watch(user, (newVal) => {
@@ -44,6 +59,8 @@ export async function loginWithPhone(phone, code) {
     user.userName = result.userName
     user.avatar = result.avatarUrl || 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=user%20avatar%20icon%20orange%20simple&image_size=square'
     user.loginType = 'phone'
+    user.createdAt = result.createdAt || ''
+    user.lastLoginTime = new Date().toISOString()
     
     return true
   } catch (error) {
@@ -57,6 +74,26 @@ export function logout() {
   user.userName = ''
   user.avatar = ''
   user.loginType = ''
+  user.createdAt = ''
+  user.lastLoginTime = null
+}
+
+export function isSessionValid() {
+  if (!user.isLoggedIn || !user.lastLoginTime) {
+    return false
+  }
+  const now = Date.now()
+  const lastLogin = new Date(user.lastLoginTime).getTime()
+  const diffDays = (now - lastLogin) / (1000 * 60 * 60 * 24)
+  return diffDays <= EXPIRATION_DAYS
+}
+
+export function checkAndRefreshSession() {
+  if (user.isLoggedIn && !isSessionValid()) {
+    logout()
+    return false
+  }
+  return user.isLoggedIn
 }
 
 export async function updateAvatar(avatarUrl) {

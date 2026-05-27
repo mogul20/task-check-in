@@ -8,6 +8,10 @@
       />
     </div>
     
+    <div v-else-if="currentPage === 'profile-edit'" class="max-w-lg mx-auto">
+      <ProfileEdit @back="goBack" />
+    </div>
+    
     <template v-else>
       <nav class="bg-white/85 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div class="max-w-lg mx-auto px-4 py-4">
@@ -15,8 +19,16 @@
         </div>
       </nav>
       
-      <div class="max-w-lg mx-auto px-4 py-4 pb-20">
-        <component :is="currentComponent" @open-detail="openTaskDetail" />
+      <div class="max-w-lg mx-auto px-4 py-4 pb-20 relative">
+        <component :is="currentComponent" @open-detail="openTaskDetail" @open-profile-edit="openProfileEdit" />
+        
+        <button 
+          v-if="currentTab === 'home' && user.isLoggedIn"
+          @click="showAddTaskModal = true"
+          class="fixed bottom-24 right-[calc(50%-230px)] w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all duration-200 z-40"
+        >
+          <Plus class="w-7 h-7" />
+        </button>
       </div>
       
       <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl shadow-2xl border-t border-gray-100">
@@ -33,22 +45,27 @@
             <div v-if="currentTab === tab.id" class="absolute bottom-1 w-1 h-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
           </button>
         </div>
+        
+
       </nav>
     </template>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { Home, BarChart2, User } from 'lucide-vue-next'
+import { ref, computed, onMounted } from 'vue'
+import { Home, BarChart2, User, Plus } from 'lucide-vue-next'
 import TaskList from './components/TaskList.vue'
 import Statistics from './components/Statistics.vue'
 import LoginPage from './components/LoginPage.vue'
 import TaskDetail from './components/TaskDetail.vue'
+import ProfileEdit from './components/ProfileEdit.vue'
+import { user, checkAndRefreshSession } from './stores/userStore'
 
 const currentTab = ref('home')
 const currentPage = ref('main')
 const selectedTaskId = ref('')
+const showAddTaskModal = ref(false)
 
 const tabs = [
   { id: 'home', name: '今日打卡', icon: Home },
@@ -74,6 +91,10 @@ function openTaskDetail(taskId) {
   currentPage.value = 'detail'
 }
 
+function openProfileEdit() {
+  currentPage.value = 'profile-edit'
+}
+
 function goBack() {
   currentPage.value = 'main'
   selectedTaskId.value = ''
@@ -81,4 +102,8 @@ function goBack() {
 
 function onTaskUpdated() {
 }
+
+onMounted(() => {
+  checkAndRefreshSession()
+})
 </script>

@@ -40,7 +40,8 @@ export async function loginWithPhone(username, password) {
       userId: user.id,
       userName: user.name,
       phone: user.phone,
-      avatarUrl: user.avatar_url
+      avatarUrl: user.avatar_url,
+      createdAt: user.created_at
     }
   } catch (error) {
     throw error

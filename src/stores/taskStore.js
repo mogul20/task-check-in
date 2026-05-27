@@ -4,40 +4,7 @@ import { addTask as supabaseAddTask, getTasks as supabaseGetTasks, updateTask as
 
 const REMINDER_KEY = 'daily-goal-reminder'
 
-const defaultTasks = [
-  {
-    id: '1',
-    name: '早起打卡',
-    description: '每天早上7点前起床',
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    color: '#3b82f6'
-  },
-  {
-    id: '2',
-    name: '运动健身',
-    description: '每天运动30分钟',
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    color: '#10b981'
-  },
-  {
-    id: '3',
-    name: '阅读学习',
-    description: '每天阅读30页书籍',
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    color: '#f59e0b'
-  },
-  {
-    id: '4',
-    name: '喝水提醒',
-    description: '每天喝8杯水',
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    color: '#06b6d4'
-  }
-]
+
 
 export const appState = reactive({
   isLoading: false,
@@ -109,14 +76,14 @@ async function loadUserData() {
       }
     })
     
-    tasks.splice(0, tasks.length, ...(formattedTasks.length > 0 ? formattedTasks : defaultTasks))
+    tasks.splice(0, tasks.length, ...formattedTasks)
     
     Object.keys(records).forEach(key => delete records[key])
     Object.assign(records, formattedRecords)
     
   } catch (error) {
     console.error('Failed to load data from Supabase:', error)
-    tasks.splice(0, tasks.length, ...defaultTasks)
+    tasks.splice(0, tasks.length)
     Object.keys(records).forEach(key => delete records[key])
   } finally {
     appState.isLoading = false
@@ -486,7 +453,7 @@ export function getTaskComments(taskId) {
 }
 
 function getRandomColor() {
-  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16']
+  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '##d7f0ef', '#84cc16']
   return colors[Math.floor(Math.random() * colors.length)]
 }
 

@@ -371,6 +371,8 @@ import { User, MessageCircle, Star, Lock, Loader2, Settings, HelpCircle, Info, C
 import { user, loginWithPhone, logout, getVerificationCode, updateAvatar, updateUsername } from '../stores/userStore'
 import { reminderSettings, setReminderSettings } from '../stores/taskStore'
 
+const emit = defineEmits(['open-profile-edit'])
+
 const phone = ref('')
 const code = ref('')
 const isLoading = ref(false)
@@ -534,8 +536,7 @@ function saveReminderSettings() {
 
 function handleAvatarClick() {
   if (user.isLoggedIn) {
-    tempAvatar.value = user.avatar
-    showAvatarModal.value = true
+    emit('open-profile-edit')
   } else {
     showLoginModal.value = true
   }
@@ -623,8 +624,7 @@ function handleWheel(e) {
 
 function handleNicknameClick() {
   if (user.isLoggedIn) {
-    nicknameInput.value = user.userName
-    showNicknameModal.value = true
+    emit('open-profile-edit')
   }
 }
 
