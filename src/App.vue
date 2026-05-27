@@ -20,12 +20,12 @@
       </nav>
       
       <div class="max-w-lg mx-auto px-4 py-4 pb-20 relative">
-        <component :is="currentComponent" @open-detail="openTaskDetail" @open-profile-edit="openProfileEdit" />
+        <component :is="currentComponent" ref="currentComponentRef" @open-detail="openTaskDetail" @open-profile-edit="openProfileEdit" />
         
         <button 
           v-if="currentTab === 'home' && user.isLoggedIn"
-          @click="showAddTaskModal = true"
-          class="fixed bottom-24 right-[calc(50%-230px)] w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all duration-200 z-40"
+          @click="handleAddTaskClick"
+          class="fixed bottom-24 right-[calc(50%-200px)] w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all duration-200 z-40"
         >
           <Plus class="w-7 h-7" />
         </button>
@@ -65,7 +65,7 @@ import { user, checkAndRefreshSession } from './stores/userStore'
 const currentTab = ref('home')
 const currentPage = ref('main')
 const selectedTaskId = ref('')
-const showAddTaskModal = ref(false)
+const currentComponentRef = ref(null)
 
 const tabs = [
   { id: 'home', name: '今日打卡', icon: Home },
@@ -101,6 +101,12 @@ function goBack() {
 }
 
 function onTaskUpdated() {
+}
+
+function handleAddTaskClick() {
+  if (currentComponentRef.value && typeof currentComponentRef.value.openAddTaskModal === 'function') {
+    currentComponentRef.value.openAddTaskModal()
+  }
 }
 
 onMounted(() => {

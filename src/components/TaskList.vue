@@ -468,7 +468,15 @@ import DatePicker from './DatePicker.vue'
 import { getTasksForDate, isCompleted, checkIn, uncheckIn, addTask, appState } from '../stores/taskStore'
 import { user } from '../stores/userStore'
 
-const emit = defineEmits(['openDetail'])
+const emit = defineEmits(['openDetail', 'open-add-task'])
+
+function openAddTaskModal() {
+  showAddTaskModal.value = true
+}
+
+defineExpose({
+  openAddTaskModal
+})
 
 function formatDate(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
