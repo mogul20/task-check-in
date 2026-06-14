@@ -60,7 +60,7 @@ import Statistics from './components/Statistics.vue'
 import LoginPage from './components/LoginPage.vue'
 import TaskDetail from './components/TaskDetail.vue'
 import ProfileEdit from './components/ProfileEdit.vue'
-import { user, checkAndRefreshSession } from './stores/userStore'
+import { user, checkAndRefreshSession, reinitializeUserState } from './stores/userStore'
 
 const currentTab = ref('home')
 const currentPage = ref('main')
@@ -110,6 +110,9 @@ function handleAddTaskClick() {
 }
 
 onMounted(() => {
+  // 重新初始化登录状态以确保正确恢复
+  reinitializeUserState()
+  // 检查并刷新会话状态
   checkAndRefreshSession()
 })
 </script>

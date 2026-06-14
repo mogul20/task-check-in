@@ -1,108 +1,53 @@
-import { reactive, watch } from 'vue'
+import { reactive, watch, computed } from 'vue'
 import { loginWithPhone as supabaseLogin, updateUserProfile, getVerificationCode as supabaseGetCode, resetPassword as supabaseResetPassword } from '../supabase/userService'
 
 const USER_KEY = 'daily-goal-user'
-const SESSION_KEY = 'daily-goal-session'
 const EXPIRATION_DAYS = 15
 
-function isLocalStorageAvailable() {
+// 直接检查localStorage是否包含有效的登录数据
+function getStoredUserData() {
   try {
-    const test = '__storage_test__'
-    localStorage.setItem(test, test)
-    localStorage.removeItem(test)
-    return true
-  } catch (e) {
-    return false
-  }
-}
-
-function isSessionStorageAvailable() {
-  try {
-    const test = '__session_test__'
-    sessionStorage.setItem(test, test)
-    sessionStorage.removeItem(test)
-    return true
-  } catch (e) {
-    return false
-  }
-}
-
-function loadFromStorage(key, defaultValue) {
-  try {
-    // 优先使用 localStorage
-    if (isLocalStorageAvailable()) {
-      const data = localStorage.getItem(key)
-      if (data) {
-        const parsed = JSON.parse(data)
-        if (parsed && parsed.isLoggedIn && parsed.lastLoginTime) {
-          const now = Date.now()
-          const lastLogin = new Date(parsed.lastLoginTime).getTime()
-          const diffDays = (now - lastLogin) / (1000 * 60 * 60 * 24)
-          if (diffDays > EXPIRATION_DAYS) {
-            console.log('登录状态已过期')
-            return { ...defaultValue }
-          }
-          console.log('从localStorage恢复登录状态', parsed.userName)
-          // 同时备份到 sessionStorage
-          if (isSessionStorageAvailable()) {
-            sessionStorage.setItem(key, data)
-          }
-          return parsed
-        }
-      }
+    const data = localStorage.getItem(USER_KEY)
+    if (!data) {
+      console.log('localStorage中没有用户数据')
+      return null
     }
     
-    // 备用：尝试从 sessionStorage 恢复
-    if (isSessionStorageAvailable()) {
-      const sessionData = sessionStorage.getItem(key)
-      if (sessionData) {
-        const parsed = JSON.parse(sessionData)
-        if (parsed && parsed.isLoggedIn && parsed.lastLoginTime) {
-          const now = Date.now()
-          const lastLogin = new Date(parsed.lastLoginTime).getTime()
-          const diffDays = (now - lastLogin) / (1000 * 60 * 60 * 24)
-          if (diffDays <= EXPIRATION_DAYS) {
-            console.log('从sessionStorage恢复登录状态', parsed.userName)
-            // 恢复到 localStorage
-            if (isLocalStorageAvailable()) {
-              localStorage.setItem(key, sessionData)
-            }
-            return parsed
-          }
-        }
-      }
+    const parsed = JSON.parse(data)
+    if (!parsed || !parsed.isLoggedIn || !parsed.lastLoginTime) {
+      console.log('localStorage中没有有效的登录状态')
+      return null
     }
     
-    return defaultValue
+    const now = Date.now()
+    const lastLogin = new Date(parsed.lastLoginTime).getTime()
+    const diffDays = (now - lastLogin) / (1000 * 60 * 60 * 24)
+    
+    if (diffDays > EXPIRATION_DAYS) {
+      console.log('登录状态已过期，需要重新登录')
+      return null
+    }
+    
+    console.log('从localStorage恢复登录状态:', parsed.userName)
+    return parsed
   } catch (e) {
-    console.error('加载登录状态失败', e)
-    return defaultValue
+    console.error('加载登录状态失败:', e)
+    return null
   }
 }
 
-function saveToStorage(key, value) {
-  const jsonData = JSON.stringify(value)
-  
-  // 保存到 localStorage
-  if (isLocalStorageAvailable()) {
-    try {
-      localStorage.setItem(key, jsonData)
-    } catch (e) {
-      console.error('保存到localStorage失败', e)
-    }
-  }
-  
-  // 同时备份到 sessionStorage
-  if (isSessionStorageAvailable()) {
-    try {
-      sessionStorage.setItem(key, jsonData)
-    } catch (e) {
-      console.error('保存到sessionStorage失败', e)
-    }
+// 保存登录状态
+function persistUserData(userData) {
+  try {
+    localStorage.setItem(USER_KEY, JSON.stringify(userData))
+    console.log('登录状态已保存到localStorage')
+  } catch (e) {
+    console.error('保存登录状态失败:', e)
   }
 }
 
-export const user = reactive(loadFromStorage(USER_KEY, {
+// 创建响应式用户对象
+const defaultUser = {
   isLoggedIn: false,
   userId: null,
   userName: '',
@@ -110,13 +55,38 @@ export const user = reactive(loadFromStorage(USER_KEY, {
   loginType: '',
   createdAt: '',
   lastLoginTime: null
-}))
+}
+
+// 初始化用户数据
+const storedData = getStoredUserData()
+const initialData = storedData || defaultUser
+
+export const user = reactive(initialData)
+
+// 创建一个计算属性来确保响应式更新
+export const isLoggedIn = computed(() => user.isLoggedIn)
 
 // 监听用户状态变化并保存
 watch(user, (newVal) => {
-  saveToStorage(USER_KEY, newVal)
-  console.log('用户状态已保存', newVal.isLoggedIn ? newVal.userName : '已退出')
+  persistUserData(newVal)
 }, { deep: true })
+
+// 监听其他标签页的存储变化
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (e.key === USER_KEY && e.newValue) {
+      try {
+        const newData = JSON.parse(e.newValue)
+        if (newData) {
+          Object.assign(user, newData)
+          console.log('从其他标签页同步登录状态:', newData.userName)
+        }
+      } catch (err) {
+        console.error('同步登录状态失败:', err)
+      }
+    }
+  })
+}
 
 // 调试：输出初始化状态
 console.log('userStore初始化完成', user.isLoggedIn ? `已登录: ${user.userName}` : '未登录')
@@ -140,17 +110,6 @@ export async function loginWithPhone(phone, code) {
     user.createdAt = result.createdAt || ''
     user.lastLoginTime = new Date().toISOString()
     
-    // 显式保存到localStorage
-    saveToStorage(USER_KEY, {
-      isLoggedIn: true,
-      userId: result.userId,
-      userName: result.userName,
-      avatar: user.avatar,
-      loginType: 'phone',
-      createdAt: result.createdAt || '',
-      lastLoginTime: user.lastLoginTime
-    })
-    
     return true
   } catch (error) {
     throw error
@@ -165,17 +124,6 @@ export function logout() {
   user.loginType = ''
   user.createdAt = ''
   user.lastLoginTime = null
-  
-  // 显式保存退出状态
-  saveToStorage(USER_KEY, {
-    isLoggedIn: false,
-    userId: null,
-    userName: '',
-    avatar: '',
-    loginType: '',
-    createdAt: '',
-    lastLoginTime: null
-  })
 }
 
 export function isSessionValid() {
@@ -194,6 +142,18 @@ export function checkAndRefreshSession() {
     return false
   }
   return user.isLoggedIn
+}
+
+// 手动重新初始化登录状态（用于确保状态正确）
+export function reinitializeUserState() {
+  const storedData = getStoredUserData()
+  if (storedData) {
+    Object.assign(user, storedData)
+    console.log('手动重新初始化登录状态成功:', user.userName)
+    return true
+  }
+  console.log('手动重新初始化登录状态失败')
+  return false
 }
 
 export async function updateAvatar(avatarUrl) {
