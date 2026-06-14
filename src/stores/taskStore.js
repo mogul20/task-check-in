@@ -1,4 +1,4 @@
-import { reactive, watch } from 'vue'
+import { reactive, watch, nextTick } from 'vue'
 import { user } from './userStore'
 import { addTask as supabaseAddTask, getTasks as supabaseGetTasks, updateTask as supabaseUpdateTask, deleteTask as supabaseDeleteTask, checkin as supabaseCheckin, getCheckinRecords as supabaseGetRecords } from '../supabase/taskService'
 
@@ -496,6 +496,10 @@ export function getUncompletedTasks() {
   return todayTasks.filter(task => !isCompleted(task.id, today))
 }
 
-loadUserData().then(() => {
-  appState.isInitialized = true
+// 使用 nextTick 确保 userStore 已完全初始化
+nextTick(() => {
+  loadUserData().then(() => {
+    appState.isInitialized = true
+    console.log('taskStore初始化完成', user.userId ? '已加载用户数据' : '未登录')
+  })
 })
