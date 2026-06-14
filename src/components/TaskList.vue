@@ -309,44 +309,44 @@
                   <ChevronDown class="w-4 h-4 text-gray-400" />
                 </div>
                 <div v-if="showAddTaskStartDate" class="absolute z-50 left-0 right-0 mt-2 p-4 bg-white rounded-xl shadow-2xl border border-gray-100">
-                  <div class="grid grid-cols-3 gap-2 mb-3">
+                  <div class="grid grid-cols-3 gap-2 mb-4">
                     <div class="text-center">
-                      <div class="text-xs text-gray-500 mb-1">年</div>
-                      <div ref="addTaskStartYearList" class="h-32 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
+                      <div class="text-sm font-medium text-gray-500 mb-2">年</div>
+                      <div ref="addTaskStartYearList" class="w-full h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50 scroll-snap-container">
                         <div
                           v-for="year in availableYears"
                           :key="year"
                           @click="selectAddTaskStartYear(year)"
-                          class="h-9 flex items-center justify-center text-sm cursor-pointer transition-all duration-200 rounded-lg"
-                          :class="addTaskStartYear === year ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
+                          class="h-12 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg scroll-snap-center"
+                          :class="addTaskStartYear === year ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-200 text-gray-700'"
                         >
                           {{ year }}
                         </div>
                       </div>
                     </div>
                     <div class="text-center">
-                      <div class="text-xs text-gray-500 mb-1">月</div>
-                      <div ref="addTaskStartMonthList" class="h-32 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
+                      <div class="text-sm font-medium text-gray-500 mb-2">月</div>
+                      <div ref="addTaskStartMonthList" class="w-full h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50 scroll-snap-container">
                         <div
                           v-for="month in 12"
                           :key="month"
                           @click="selectAddTaskStartMonth(month)"
-                          class="h-9 flex items-center justify-center text-sm cursor-pointer transition-all duration-200 rounded-lg"
-                          :class="addTaskStartMonth === month ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
+                          class="h-12 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg scroll-snap-center"
+                          :class="addTaskStartMonth === month ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-200 text-gray-700'"
                         >
                           {{ month }}
                         </div>
                       </div>
                     </div>
                     <div class="text-center">
-                      <div class="text-xs text-gray-500 mb-1">日</div>
-                      <div ref="addTaskStartDayList" class="h-32 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
+                      <div class="text-sm font-medium text-gray-500 mb-2">日</div>
+                      <div ref="addTaskStartDayList" class="w-full h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50 scroll-snap-container">
                         <div
                           v-for="day in getAddTaskDaysInMonth(addTaskStartYear, addTaskStartMonth)"
                           :key="day"
                           @click="selectAddTaskStartDay(day)"
-                          class="h-9 flex items-center justify-center text-sm cursor-pointer transition-all duration-200 rounded-lg"
-                          :class="addTaskStartDay === day ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
+                          class="h-12 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg scroll-snap-center"
+                          :class="addTaskStartDay === day ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-200 text-gray-700'"
                         >
                           {{ day }}
                         </div>
@@ -354,7 +354,7 @@
                     </div>
                   </div>
                   <div class="flex gap-2">
-                    <button @click="saveAddTaskStartDate" class="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all duration-200">保存</button>
+                    <button @click="saveAddTaskStartDate" class="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium text-base hover:opacity-90 transition-all duration-200">保存</button>
                   </div>
                 </div>
               </div>
@@ -372,52 +372,52 @@
                 <div v-if="showAddTaskEndDate" class="absolute z-50 left-0 right-0 mt-2 p-4 bg-white rounded-xl shadow-2xl border border-gray-100">
                   <button
                     @click="setAddTaskEndLongTerm"
-                    class="w-full px-4 py-2 rounded-xl font-medium transition-all duration-200 mb-3"
+                    class="w-full px-6 py-2 rounded-xl font-medium text-base transition-all duration-200 mt-[-8px] mb-2"
                     :class="addTaskEndIsLongTerm 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg' 
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
                   >
                     设为长期
                   </button>
-                  <div class="bg-white rounded-xl p-3" :class="{ 'opacity-50': addTaskEndIsLongTerm }">
-                    <div class="grid grid-cols-3 gap-2">
+                  <div :class="{ 'opacity-50': addTaskEndIsLongTerm }">
+                    <div class="grid grid-cols-3 gap-2 mb-4">
                       <div class="text-center">
-                        <div class="text-xs text-gray-500 mb-1">年</div>
-                        <div ref="addTaskEndYearList" class="h-32 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
+                        <div class="text-sm font-medium text-gray-500 mb-2">年</div>
+                        <div ref="addTaskEndYearList" class="w-full h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50 scroll-snap-container">
                           <div
                             v-for="year in availableYears"
                             :key="year"
                             @click="selectAddTaskEndYear(year)"
-                            class="h-9 flex items-center justify-center text-sm cursor-pointer transition-all duration-200 rounded-lg"
-                            :class="addTaskEndYear === year ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
+                            class="h-12 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg scroll-snap-center"
+                            :class="addTaskEndYear === year ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-200 text-gray-700'"
                           >
                             {{ year }}
                           </div>
                         </div>
                       </div>
                       <div class="text-center">
-                        <div class="text-xs text-gray-500 mb-1">月</div>
-                        <div ref="addTaskEndMonthList" class="h-32 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
+                        <div class="text-sm font-medium text-gray-500 mb-2">月</div>
+                        <div ref="addTaskEndMonthList" class="w-full h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50 scroll-snap-container">
                           <div
                             v-for="month in 12"
                             :key="month"
                             @click="selectAddTaskEndMonth(month)"
-                            class="h-9 flex items-center justify-center text-sm cursor-pointer transition-all duration-200 rounded-lg"
-                            :class="addTaskEndMonth === month ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
+                            class="h-12 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg scroll-snap-center"
+                            :class="addTaskEndMonth === month ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-200 text-gray-700'"
                           >
                             {{ month }}
                           </div>
                         </div>
                       </div>
                       <div class="text-center">
-                        <div class="text-xs text-gray-500 mb-1">日</div>
-                        <div ref="addTaskEndDayList" class="h-32 overflow-y-auto scrollbar-hide rounded-lg bg-gray-50">
+                        <div class="text-sm font-medium text-gray-500 mb-2">日</div>
+                        <div ref="addTaskEndDayList" class="w-full h-36 overflow-y-auto scrollbar-hide rounded-xl bg-gray-50 scroll-snap-container">
                           <div
                             v-for="day in getAddTaskDaysInMonth(addTaskEndYear, addTaskEndMonth)"
                             :key="day"
                             @click="selectAddTaskEndDay(day)"
-                            class="h-9 flex items-center justify-center text-sm cursor-pointer transition-all duration-200 rounded-lg"
-                            :class="addTaskEndDay === day ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'"
+                            class="h-12 flex items-center justify-center text-lg cursor-pointer transition-all duration-200 rounded-lg scroll-snap-center"
+                            :class="addTaskEndDay === day ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold' : 'hover:bg-gray-200 text-gray-700'"
                           >
                             {{ day }}
                           </div>
@@ -425,8 +425,8 @@
                       </div>
                     </div>
                   </div>
-                  <div class="flex gap-2 mt-3">
-                    <button @click="saveAddTaskEndDate" class="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all duration-200">保存</button>
+                  <div class="flex gap-2">
+                    <button @click="saveAddTaskEndDate" class="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium text-base hover:opacity-90 transition-all duration-200">保存</button>
                   </div>
                 </div>
               </div>
@@ -527,7 +527,7 @@ function scrollAddTaskDateToCenter(element, value, options) {
   if (!element) return
   const index = options.indexOf(value)
   if (index !== -1) {
-    const itemHeight = 36
+    const itemHeight = 48
     const containerHeight = element.clientHeight
     const scrollTop = index * itemHeight - (containerHeight / 2) + (itemHeight / 2)
     element.scrollTop = Math.max(0, scrollTop)
@@ -540,6 +540,7 @@ function selectAddTaskStartYear(year) {
   if (addTaskStartDay.value > maxDay) {
     addTaskStartDay.value = maxDay
   }
+  scrollAddTaskDateToCenter(addTaskStartYearList.value, year, availableYears)
 }
 
 function selectAddTaskStartMonth(month) {
@@ -548,10 +549,12 @@ function selectAddTaskStartMonth(month) {
   if (addTaskStartDay.value > maxDay) {
     addTaskStartDay.value = maxDay
   }
+  scrollAddTaskDateToCenter(addTaskStartMonthList.value, month, Array.from({length: 12}, (_, i) => i + 1))
 }
 
 function selectAddTaskStartDay(day) {
   addTaskStartDay.value = day
+  scrollAddTaskDateToCenter(addTaskStartDayList.value, day, Array.from({length: getAddTaskDaysInMonth(addTaskStartYear.value, addTaskStartMonth.value)}, (_, i) => i + 1))
 }
 
 function selectAddTaskEndYear(year) {
@@ -561,6 +564,7 @@ function selectAddTaskEndYear(year) {
   if (addTaskEndDay.value > maxDay) {
     addTaskEndDay.value = maxDay
   }
+  scrollAddTaskDateToCenter(addTaskEndYearList.value, year, availableYears)
 }
 
 function selectAddTaskEndMonth(month) {
@@ -570,11 +574,13 @@ function selectAddTaskEndMonth(month) {
   if (addTaskEndDay.value > maxDay) {
     addTaskEndDay.value = maxDay
   }
+  scrollAddTaskDateToCenter(addTaskEndMonthList.value, month, Array.from({length: 12}, (_, i) => i + 1))
 }
 
 function selectAddTaskEndDay(day) {
   addTaskEndIsLongTerm.value = false
   addTaskEndDay.value = day
+  scrollAddTaskDateToCenter(addTaskEndDayList.value, day, Array.from({length: getAddTaskDaysInMonth(addTaskEndYear.value, addTaskEndMonth.value)}, (_, i) => i + 1))
 }
 
 function toggleAddTaskStartDate() {
@@ -922,25 +928,25 @@ function selectDate(dateStr) {
 function prevWeek() {
   const date = new Date(selectedDate.value)
   date.setDate(date.getDate() - 7)
-  selectedDate.value = date.toISOString().split('T')[0]
+  selectedDate.value = formatDate(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
 function nextWeek() {
   const date = new Date(selectedDate.value)
   date.setDate(date.getDate() + 7)
-  selectedDate.value = date.toISOString().split('T')[0]
+  selectedDate.value = formatDate(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
 function prevMonth() {
   const date = new Date(selectedDate.value)
   date.setMonth(date.getMonth() - 1)
-  selectedDate.value = date.toISOString().split('T')[0]
+  selectedDate.value = formatDate(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
 function nextMonth() {
   const date = new Date(selectedDate.value)
   date.setMonth(date.getMonth() + 1)
-  selectedDate.value = date.toISOString().split('T')[0]
+  selectedDate.value = formatDate(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
 function goToToday() {
@@ -1026,14 +1032,26 @@ function closeYearMonthPicker(e) {
 function selectYear(year) {
   const date = new Date(selectedDate.value)
   date.setFullYear(year)
-  selectedDate.value = date.toISOString().split('T')[0]
+  selectedDate.value = formatDate(date.getFullYear(), date.getMonth(), date.getDate())
   showYearMonthPicker.value = false
 }
 
 function selectMonth(month) {
   const date = new Date(selectedDate.value)
   date.setMonth(month - 1)
-  selectedDate.value = date.toISOString().split('T')[0]
+  selectedDate.value = formatDate(date.getFullYear(), date.getMonth(), date.getDate())
   showYearMonthPicker.value = false
 }
 </script>
+
+<style scoped>
+.scroll-snap-container {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-snap-center {
+  scroll-snap-align: center;
+}
+</style>

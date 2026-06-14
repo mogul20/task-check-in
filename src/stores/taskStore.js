@@ -183,8 +183,13 @@ export function getTasksForDate(dateStr) {
   })
 }
 
+function getTodayStr() {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
+
 export async function checkIn(taskId, comment = '', dateStr = null) {
-  const targetDate = dateStr || new Date().toISOString().split('T')[0]
+  const targetDate = dateStr || getTodayStr()
   
   if (user.userId) {
     try {
@@ -214,18 +219,18 @@ export async function checkIn(taskId, comment = '', dateStr = null) {
 }
 
 export function isCompleted(taskId, dateStr = null) {
-  const targetDate = dateStr || new Date().toISOString().split('T')[0]
+  const targetDate = dateStr || getTodayStr()
   return records[targetDate]?.[taskId]?.completed || false
 }
 
 export function getComment(taskId, dateStr = null) {
-  const targetDate = dateStr || new Date().toISOString().split('T')[0]
+  const targetDate = dateStr || getTodayStr()
   const comments = records[targetDate]?.[taskId]?.comments || []
   return comments.length > 0 ? comments[comments.length - 1].text : ''
 }
 
 export function addComment(taskId, comment, dateStr = null) {
-  const targetDate = dateStr || new Date().toISOString().split('T')[0]
+  const targetDate = dateStr || getTodayStr()
   if (!records[targetDate]) {
     records[targetDate] = {}
   }
@@ -259,7 +264,7 @@ export function addComment(taskId, comment, dateStr = null) {
 }
 
 export function updateComment(taskId, comment, dateStr = null) {
-  const targetDate = dateStr || new Date().toISOString().split('T')[0]
+  const targetDate = dateStr || getTodayStr()
   if (records[targetDate]?.[taskId]) {
     const comments = records[targetDate][taskId].comments || []
     if (comments.length > 0) {
@@ -270,7 +275,7 @@ export function updateComment(taskId, comment, dateStr = null) {
 }
 
 export function deleteComment(taskId, commentId, dateStr = null) {
-  const targetDate = dateStr || new Date().toISOString().split('T')[0]
+  const targetDate = dateStr || getTodayStr()
   if (records[targetDate]?.[taskId]) {
     const comments = records[targetDate][taskId].comments || []
     records[targetDate][taskId].comments = comments.filter(c => c.id !== commentId)
@@ -278,7 +283,7 @@ export function deleteComment(taskId, commentId, dateStr = null) {
 }
 
 export function uncheckIn(taskId, dateStr = null) {
-  const targetDate = dateStr || new Date().toISOString().split('T')[0]
+  const targetDate = dateStr || getTodayStr()
   if (records[targetDate]?.[taskId]) {
     delete records[targetDate][taskId]
     if (Object.keys(records[targetDate]).length === 0) {
@@ -288,8 +293,7 @@ export function uncheckIn(taskId, dateStr = null) {
 }
 
 export function getTodayTasks() {
-  const today = new Date().toISOString().split('T')[0]
-  return getTasksForDate(today)
+  return getTasksForDate(getTodayStr())
 }
 
 export function getTaskStats(taskId, startDate, endDate) {
@@ -367,7 +371,7 @@ export function getDailyStatsForMonth(year, month) {
   
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month - 1, day)
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
     const dayRecords = records[dateStr] || {}
     const completedCount = Object.values(dayRecords).filter(r => r.completed).length
     const totalTasks = tasks.filter(t => t.startDate <= dateStr && (!t.endDate || t.endDate >= dateStr)).length

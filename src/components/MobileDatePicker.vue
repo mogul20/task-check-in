@@ -14,7 +14,33 @@
             class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden"
           >
             <div class="bg-gradient-to-br from-blue-500 to-purple-500 py-6 px-4">
-              <div class="flex items-center justify-around">
+              <!-- 仅年份模式 -->
+              <div v-if="mode === 'year'" class="flex justify-center">
+                <div class="flex flex-col items-center">
+                  <span class="text-xs text-white/70 mb-2">年份</span>
+                  <div 
+                    ref="yearScrollRef"
+                    class="scroll-container h-24 w-24 overflow-y-auto scrollbar-hide select-none"
+                    @wheel="onYearWheel"
+                    @touchstart="startYearTouch"
+                    @touchmove="onYearTouchMove"
+                    @touchend="endYearTouch"
+                  >
+                    <div 
+                      v-for="year in availableYears" 
+                      :key="year"
+                      class="scroll-item h-10 flex items-center justify-center font-bold"
+                      :class="selectedYear === year ? 'text-white text-2xl' : 'text-white/40 text-xl'"
+                      @click="selectYear(year)"
+                    >
+                      {{ year }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 年月选择模式 -->
+              <div v-else class="flex items-center justify-around">
                 <div class="flex flex-col items-center">
                   <span class="text-xs text-white/70 mb-2">年份</span>
                   <div 

@@ -24,42 +24,35 @@
         </button>
       </div>
       
-      <div v-if="currentTab === 'monthly'" class="mb-4">
-        <div class="task-card mb-4">
-          <div class="flex items-center justify-between mb-3">
+      <div v-if="currentTab === 'monthly'" class="space-y-4">
+        <div class="task-card p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <h3 class="font-medium text-gray-800">月度打卡趋势</h3>
-            <button 
-              @click="showMonthlyDatePicker = true"
-              class="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[130px] justify-center"
-            >
-              <span class="text-sm font-medium text-gray-700">{{ currentYear }}年{{ months[currentMonth - 1]?.label }}</span>
-              <ChevronDown class="w-4 h-4 text-gray-400" />
-            </button>
-            <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button 
-                @click="monthlyChartType = 'line'"
-                class="px-3 py-1 rounded text-xs font-medium transition-all touch-manipulation"
-                :class="monthlyChartType === 'line' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+                @click="showMonthlyDatePicker = true"
+                class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[130px]"
               >
-                折线图
+                <span class="text-sm font-medium text-gray-700">{{ monthlyYear }}年{{ months[monthlyMonth - 1]?.label }}</span>
+                <ChevronDown class="w-4 h-4 text-gray-400" />
               </button>
               <button 
-                @click="monthlyChartType = 'bar'"
-                class="px-3 py-1 rounded text-xs font-medium transition-all touch-manipulation"
-                :class="monthlyChartType === 'bar' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+                @click="monthlyChartType = monthlyChartType === 'line' ? 'bar' : 'line'"
+                class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all touch-manipulation"
               >
-                柱状图
+                <span class="text-xs font-medium">{{ monthlyChartType === 'line' ? '折线图' : '柱状图' }}</span>
+                <ArrowLeftRight class="w-4 h-4" />
               </button>
             </div>
           </div>
-          <div class="h-48">
+          <div class="h-56">
             <Line v-if="monthlyChartType === 'line'" :data="monthlyChartData" :options="lineOptions" />
             <Bar v-else :data="monthlyChartData" :options="barOptions" />
           </div>
         </div>
         
-        <div class="task-card">
-          <h3 class="font-medium text-gray-800 mb-3">任务完成情况</h3>
+        <div class="task-card p-4">
+          <h3 class="font-medium text-gray-800 mb-4">任务完成情况</h3>
           <div v-if="monthlyStats.length === 0" class="text-center py-8 text-gray-400">
             暂无数据
           </div>
@@ -67,12 +60,12 @@
             <div v-for="stat in monthlyStats" :key="stat.task.id" class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
               <div class="flex items-center">
                 <div 
-                  class="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                  class="w-3 h-3 rounded-full mr-3 flex-shrink-0"
                   :style="{ backgroundColor: stat.task.color }"
                 ></div>
                 <span class="text-gray-700 truncate">{{ stat.task.name }}</span>
               </div>
-              <div class="text-right flex-shrink-0 ml-2">
+              <div class="text-right flex-shrink-0 ml-3">
                 <div class="font-medium text-gray-800">{{ stat.completedCount }}/{{ stat.totalDays }}</div>
                 <div class="text-xs text-gray-400">{{ stat.completionRate }}%</div>
               </div>
@@ -80,60 +73,53 @@
           </div>
         </div>
         
-        <div class="task-card">
-          <h3 class="font-medium text-gray-800 mb-3">完美打卡</h3>
-          <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
-            <div class="flex items-center justify-center gap-8">
+        <div class="task-card p-4">
+          <h3 class="font-medium text-gray-800 mb-4">完美打卡</h3>
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-5">
+            <div class="flex items-center justify-center gap-10">
               <div class="text-center">
                 <div class="text-3xl font-bold text-purple-600">{{ monthlyPerfectDays.length }}</div>
-                <div class="text-xs text-gray-500 mt-1">完美打卡天数</div>
+                <div class="text-sm text-gray-500 mt-2">完美打卡天数</div>
               </div>
-              <div class="w-px h-10 bg-gray-300"></div>
+              <div class="w-px h-12 bg-gray-300"></div>
               <div class="text-center">
                 <div class="text-3xl font-bold text-pink-500">{{ monthlyPerfectRate }}%</div>
-                <div class="text-xs text-gray-500 mt-1">完美打卡率</div>
+                <div class="text-sm text-gray-500 mt-2">完美打卡率</div>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      <div v-else-if="currentTab === 'yearly'" class="mb-4">
-        <div class="task-card mb-4">
-          <div class="flex items-center justify-between mb-3">
+      <div v-else-if="currentTab === 'yearly'" class="space-y-4">
+        <div class="task-card p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <h3 class="font-medium text-gray-800">年度打卡趋势</h3>
-            <button 
-              @click="showYearlyYearPicker = true"
-              class="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[100px] justify-center"
-            >
-              <span class="text-sm font-medium text-gray-700">{{ currentYear }}年</span>
-              <ChevronDown class="w-4 h-4 text-gray-400" />
-            </button>
-            <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button 
-                @click="yearlyChartType = 'line'"
-                class="px-3 py-1 rounded text-xs font-medium transition-all touch-manipulation"
-                :class="yearlyChartType === 'line' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+                @click="showYearlyYearPicker = true"
+                class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[100px]"
               >
-                折线图
+                <span class="text-sm font-medium text-gray-700">{{ yearlyYear }}年</span>
+                <ChevronDown class="w-4 h-4 text-gray-400" />
               </button>
               <button 
-                @click="yearlyChartType = 'bar'"
-                class="px-3 py-1 rounded text-xs font-medium transition-all touch-manipulation"
-                :class="yearlyChartType === 'bar' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+                @click="yearlyChartType = yearlyChartType === 'line' ? 'bar' : 'line'"
+                class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all touch-manipulation"
               >
-                柱状图
+                <span class="text-xs font-medium">{{ yearlyChartType === 'line' ? '折线图' : '柱状图' }}</span>
+                <ArrowLeftRight class="w-4 h-4" />
               </button>
             </div>
           </div>
-          <div class="h-48">
+          <div class="h-56">
             <Line v-if="yearlyChartType === 'line'" :data="yearlyChartData" :options="lineOptions" />
             <Bar v-else :data="yearlyChartData" :options="barOptions" />
           </div>
         </div>
         
-        <div class="task-card">
-          <h3 class="font-medium text-gray-800 mb-3">任务完成情况</h3>
+        <div class="task-card p-4">
+          <h3 class="font-medium text-gray-800 mb-4">任务完成情况</h3>
           <div v-if="yearlyStats.length === 0" class="text-center py-8 text-gray-400">
             暂无数据
           </div>
@@ -141,12 +127,12 @@
             <div v-for="stat in yearlyStats" :key="stat.task.id" class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
               <div class="flex items-center">
                 <div 
-                  class="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                  class="w-3 h-3 rounded-full mr-3 flex-shrink-0"
                   :style="{ backgroundColor: stat.task.color }"
                 ></div>
                 <span class="text-gray-700 truncate">{{ stat.task.name }}</span>
               </div>
-              <div class="text-right flex-shrink-0 ml-2">
+              <div class="text-right flex-shrink-0 ml-3">
                 <div class="font-medium text-gray-800">{{ stat.completedCount }}/{{ stat.totalDays }}</div>
                 <div class="text-xs text-gray-400">{{ stat.completionRate }}%</div>
               </div>
@@ -154,18 +140,18 @@
           </div>
         </div>
         
-        <div class="task-card">
-          <h3 class="font-medium text-gray-800 mb-3">完美打卡</h3>
-          <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
-            <div class="flex items-center justify-center gap-8">
+        <div class="task-card p-4">
+          <h3 class="font-medium text-gray-800 mb-4">完美打卡</h3>
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-5">
+            <div class="flex items-center justify-center gap-10">
               <div class="text-center">
                 <div class="text-3xl font-bold text-purple-600">{{ yearlyPerfectDays.length }}</div>
-                <div class="text-xs text-gray-500 mt-1">完美打卡天数</div>
+                <div class="text-sm text-gray-500 mt-2">完美打卡天数</div>
               </div>
-              <div class="w-px h-10 bg-gray-300"></div>
+              <div class="w-px h-12 bg-gray-300"></div>
               <div class="text-center">
                 <div class="text-3xl font-bold text-pink-500">{{ yearlyPerfectRate }}%</div>
-                <div class="text-xs text-gray-500 mt-1">完美打卡率</div>
+                <div class="text-sm text-gray-500 mt-2">完美打卡率</div>
               </div>
             </div>
           </div>
@@ -200,10 +186,10 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-medium text-gray-800">{{ selectedTask.name }} - 打卡日历</h3>
             <button 
-              @click="showTaskDatePicker = true"
+              @click="() => { activeTaskDatePicker = selectedTask.id; showTaskDatePicker = true }"
               class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[130px] justify-center"
             >
-              <span class="text-sm font-medium text-gray-700">{{ taskYear }}年{{ months[taskMonth - 1]?.label }}</span>
+              <span class="text-sm font-medium text-gray-700">{{ getTaskYear(selectedTask.id) }}年{{ months[getTaskMonth(selectedTask.id) - 1]?.label }}</span>
               <ChevronDown class="w-3 h-3 text-gray-400" />
             </button>
           </div>
@@ -263,10 +249,10 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-medium text-gray-800">✨ 完美打卡日历</h3>
             <button 
-              @click="showTaskDatePicker = true"
+              @click="() => { activeTaskDatePicker = 'perfect'; showTaskDatePicker = true }"
               class="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all touch-manipulation min-w-[130px] justify-center"
             >
-              <span class="text-sm font-medium text-gray-700">{{ taskYear }}年{{ months[taskMonth - 1]?.label }}</span>
+              <span class="text-sm font-medium text-gray-700">{{ getTaskYear('perfect') }}年{{ months[getTaskMonth('perfect') - 1]?.label }}</span>
               <ChevronDown class="w-4 h-4 text-gray-400" />
             </button>
           </div>
@@ -326,7 +312,7 @@
     
     <MobileDatePicker 
       :visible="showMonthlyDatePicker"
-      :model-value="new Date(currentYear, currentMonth - 1, 1)"
+      :model-value="new Date(monthlyYear, monthlyMonth - 1, 1)"
       title="选择年月"
       @update:visible="showMonthlyDatePicker = false"
       @confirm="handleMonthlyDateSelect"
@@ -334,7 +320,7 @@
     
     <MobileDatePicker 
       :visible="showYearlyYearPicker"
-      :model-value="new Date(currentYear, 0, 1)"
+      :model-value="new Date(yearlyYear, 0, 1)"
       mode="year"
       title="选择年份"
       @update:visible="showYearlyYearPicker = false"
@@ -343,7 +329,7 @@
     
     <MobileDatePicker 
       :visible="showTaskDatePicker"
-      :model-value="new Date(taskYear, taskMonth - 1, 1)"
+      :model-value="new Date(getTaskYear(activeTaskDatePicker || 'default'), getTaskMonth(activeTaskDatePicker || 'default') - 1, 1)"
       title="选择年月"
       @update:visible="showTaskDatePicker = false"
       @confirm="handleTaskDateSelect"
@@ -352,8 +338,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { Calendar, Loader2, ChevronDown } from 'lucide-vue-next'
+import { ref, computed, reactive } from 'vue'
+import { Calendar, Loader2, ChevronDown, ArrowLeftRight } from 'lucide-vue-next'
 import { appState, tasks, records, getMonthlyStats, getYearlyStats, getDailyStatsForMonth, getTaskStats, getPerfectDaysForMonth, getPerfectDaysForYear, getPerfectDaysCalendar } from '../stores/taskStore'
 import { user } from '../stores/userStore'
 import { Line, Bar } from 'vue-chartjs'
@@ -389,8 +375,6 @@ const currentYear = ref(new Date().getFullYear())
 const currentMonth = ref(new Date().getMonth() + 1)
 const currentTab = ref('task')
 const selectedTaskId = ref(tasks[0]?.id || null)
-const taskYear = ref(new Date().getFullYear())
-const taskMonth = ref(new Date().getMonth() + 1)
 const viewPerfectMode = ref(false)
 const monthlyChartType = ref('line')
 const yearlyChartType = ref('line')
@@ -398,11 +382,35 @@ const yearlyChartType = ref('line')
 const showMonthlyDatePicker = ref(false)
 const showYearlyYearPicker = ref(false)
 const showTaskDatePicker = ref(false)
+const activeTaskDatePicker = ref(null)
+
+// 月度统计和年度统计的独立状态
+const monthlyYear = ref(new Date().getFullYear())
+const monthlyMonth = ref(new Date().getMonth() + 1)
+const yearlyYear = ref(new Date().getFullYear())
 
 const currentYearNum = computed(() => Number(currentYear.value))
 const currentMonthNum = computed(() => Number(currentMonth.value))
-const taskYearNum = computed(() => Number(taskYear.value))
-const taskMonthNum = computed(() => Number(taskMonth.value))
+
+const taskDates = reactive({})
+
+function getTaskYear(taskId) {
+  if (!taskDates[taskId]) {
+    taskDates[taskId] = { year: new Date().getFullYear(), month: new Date().getMonth() + 1 }
+  }
+  return taskDates[taskId].year
+}
+
+function getTaskMonth(taskId) {
+  if (!taskDates[taskId]) {
+    taskDates[taskId] = { year: new Date().getFullYear(), month: new Date().getMonth() + 1 }
+  }
+  return taskDates[taskId].month
+}
+
+function setTaskDate(taskId, year, month) {
+  taskDates[taskId] = { year, month }
+}
 
 const months = [
   { value: 1, label: '1月' },
@@ -446,21 +454,22 @@ function handleTabChange(tabId) {
 }
 
 function handleMonthlyDateSelect(date) {
-  currentYear.value = date.getFullYear()
-  currentMonth.value = date.getMonth() + 1
+  monthlyYear.value = date.getFullYear()
+  monthlyMonth.value = date.getMonth() + 1
 }
 
 function handleYearlyYearSelect(date) {
-  currentYear.value = date.getFullYear()
+  yearlyYear.value = date.getFullYear()
 }
 
 function handleTaskDateSelect(date) {
-  taskYear.value = date.getFullYear()
-  taskMonth.value = date.getMonth() + 1
+  if (activeTaskDatePicker.value) {
+    setTaskDate(activeTaskDatePicker.value, date.getFullYear(), date.getMonth() + 1)
+  }
 }
 
 const monthlyStats = computed(() => {
-  const stats = getMonthlyStats(currentYearNum.value, currentMonthNum.value)
+  const stats = getMonthlyStats(monthlyYear.value, monthlyMonth.value)
   return tasks.map(task => ({
     task,
     ...stats[task.id]
@@ -468,7 +477,7 @@ const monthlyStats = computed(() => {
 })
 
 const yearlyStats = computed(() => {
-  const stats = getYearlyStats(currentYearNum.value)
+  const stats = getYearlyStats(yearlyYear.value)
   return tasks.map(task => ({
     task,
     ...stats[task.id]
@@ -479,20 +488,29 @@ const selectedTask = computed(() => {
   return tasks.find(t => t.id === selectedTaskId.value)
 })
 
+function formatDateStr(year, month, day) {
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
 const taskStats = computed(() => {
   if (!selectedTask.value) {
     return { totalDays: 0, completedCount: 0, completionRate: 0 }
   }
-  const firstDay = new Date(taskYearNum.value, taskMonthNum.value - 1, 1)
-  const lastDay = new Date(taskYearNum.value, taskMonthNum.value, 0)
-  return getTaskStats(selectedTask.value.id, firstDay.toISOString().split('T')[0], lastDay.toISOString().split('T')[0])
+  const year = getTaskYear(selectedTask.value.id)
+  const month = getTaskMonth(selectedTask.value.id)
+  const firstDayStr = formatDateStr(year, month, 1)
+  const daysInMonth = new Date(year, month, 0).getDate()
+  const lastDayStr = formatDateStr(year, month, daysInMonth)
+  return getTaskStats(selectedTask.value.id, firstDayStr, lastDayStr)
 })
 
 const calendarDays = computed(() => {
   if (!selectedTask.value) return []
   
-  const firstDay = new Date(taskYearNum.value, taskMonthNum.value - 1, 1)
-  const lastDay = new Date(taskYearNum.value, taskMonthNum.value, 0)
+  const year = getTaskYear(selectedTask.value.id)
+  const month = getTaskMonth(selectedTask.value.id)
+  const firstDay = new Date(year, month - 1, 1)
+  const lastDay = new Date(year, month, 0)
   const daysInMonth = lastDay.getDate()
   const startPadding = firstDay.getDay()
   
@@ -503,8 +521,7 @@ const calendarDays = computed(() => {
   }
   
   for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(taskYear.value, taskMonth.value - 1, day)
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = formatDateStr(year, month, day)
     const task = selectedTask.value
     const isInTaskPeriod = dateStr >= task.startDate && (!task.endDate || dateStr <= task.endDate)
     const isCompleted = records[dateStr]?.[task.id]?.completed
@@ -558,30 +575,30 @@ function getDayTitle(day) {
 }
 
 const monthlyPerfectDays = computed(() => {
-  return getPerfectDaysForMonth(currentYearNum.value, currentMonthNum.value)
+  return getPerfectDaysForMonth(monthlyYear.value, monthlyMonth.value)
 })
 
 const monthlyPerfectRate = computed(() => {
-  const dailyStats = getDailyStatsForMonth(currentYearNum.value, currentMonthNum.value)
+  const dailyStats = getDailyStatsForMonth(monthlyYear.value, monthlyMonth.value)
   const daysWithTasks = dailyStats.filter(d => d.totalTasks > 0)
   return daysWithTasks.length > 0 ? Math.round((monthlyPerfectDays.value.length / daysWithTasks.length) * 100) : 0
 })
 
 const yearlyPerfectDays = computed(() => {
-  return getPerfectDaysForYear(currentYearNum.value)
+  return getPerfectDaysForYear(yearlyYear.value)
 })
 
 const yearlyPerfectRate = computed(() => {
   let totalDaysWithTasks = 0
   for (let month = 1; month <= 12; month++) {
-    const dailyStats = getDailyStatsForMonth(currentYearNum.value, month)
+    const dailyStats = getDailyStatsForMonth(yearlyYear.value, month)
     totalDaysWithTasks += dailyStats.filter(d => d.totalTasks > 0).length
   }
   return totalDaysWithTasks > 0 ? Math.round((yearlyPerfectDays.value.length / totalDaysWithTasks) * 100) : 0
 })
 
 const perfectDaysCalendar = computed(() => {
-  return getPerfectDaysCalendar(taskYearNum.value, taskMonthNum.value)
+  return getPerfectDaysCalendar(getTaskYear('perfect'), getTaskMonth('perfect'))
 })
 
 const perfectDaysCount = computed(() => {
@@ -589,7 +606,7 @@ const perfectDaysCount = computed(() => {
 })
 
 const perfectDaysIncompleteCount = computed(() => {
-  const dailyStats = getDailyStatsForMonth(taskYearNum.value, taskMonthNum.value)
+  const dailyStats = getDailyStatsForMonth(getTaskYear('perfect'), getTaskMonth('perfect'))
   const daysWithTasks = dailyStats.filter(d => d.totalTasks > 0)
   const perfectDays = daysWithTasks.filter(d => d.perfect)
   return daysWithTasks.length - perfectDays.length
@@ -598,7 +615,7 @@ const perfectDaysIncompleteCount = computed(() => {
 const perfectConsecutiveCount = computed(() => {
   let streak = 0
   let maxStreak = 0
-  const dailyStats = getDailyStatsForMonth(taskYearNum.value, taskMonthNum.value)
+  const dailyStats = getDailyStatsForMonth(getTaskYear('perfect'), getTaskMonth('perfect'))
   for (const day of dailyStats) {
     if (day.perfect) {
       streak++
@@ -613,7 +630,7 @@ const perfectConsecutiveCount = computed(() => {
 const perfectCumulativeCount = computed(() => {
   let cumulative = 0
   for (let month = 1; month <= 12; month++) {
-    const monthlyStats = getDailyStatsForMonth(taskYear.value, month)
+    const monthlyStats = getDailyStatsForMonth(getTaskYear('perfect'), month)
     cumulative += monthlyStats.filter(d => d.perfect).length
   }
   return cumulative
@@ -643,7 +660,7 @@ function getPerfectDayTitle(day) {
 }
 
 const monthlyChartData = computed(() => {
-  const dailyStats = getDailyStatsForMonth(currentYearNum.value, currentMonthNum.value)
+  const dailyStats = getDailyStatsForMonth(monthlyYear.value, monthlyMonth.value)
   return {
     labels: dailyStats.map(d => d.date.slice(8)),
     datasets: [
@@ -664,7 +681,7 @@ const monthlyChartData = computed(() => {
 const yearlyChartData = computed(() => {
   const monthlyRates = []
   for (let month = 1; month <= 12; month++) {
-    const dailyStats = getDailyStatsForMonth(currentYearNum.value, month)
+    const dailyStats = getDailyStatsForMonth(yearlyYear.value, month)
     const totalRate = dailyStats.reduce((sum, d) => sum + d.rate, 0)
     monthlyRates.push(dailyStats.length > 0 ? Math.round(totalRate / dailyStats.length) : 0)
   }
@@ -686,6 +703,7 @@ const yearlyChartData = computed(() => {
   }
 })
 
+
 const lineOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -696,10 +714,23 @@ const lineOptions = {
   },
   scales: {
     y: {
-      beginAtZero: true,
-      max: 100,
+      min: 0,
+      max: 110, // 从105提高到110，留出更多顶部空间
+      maxTicksLimit: 8, // 增加刻度数量，适配新的最大值
       ticks: {
-        callback: (value) => value + '%'
+        stepSize: 10, // 步长调整为10，刻度更精细
+        callback: (value) => value <= 100 ? value + '%' : '' // 超过100%不显示刻度文字
+      },
+      border: {
+        display: true
+      },
+      grid: {
+        display: true,
+        lineWidth: 1
+      },
+      // 额外增加：给Y轴顶部留出内边距
+      padding: {
+        top: 10
       }
     }
   }
@@ -715,10 +746,22 @@ const barOptions = {
   },
   scales: {
     y: {
-      beginAtZero: true,
-      max: 100,
+      min: 0,
+      max: 110, // 同步提高到110
+      maxTicksLimit: 8,
       ticks: {
-        callback: (value) => value + '%'
+        stepSize: 10,
+        callback: (value) => value <= 100 ? value + '%' : ''
+      },
+      border: {
+        display: true
+      },
+      grid: {
+        display: true,
+        lineWidth: 1
+      },
+      padding: {
+        top: 10
       }
     }
   }

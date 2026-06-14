@@ -314,6 +314,14 @@
               </div>
             </div>
           </div>
+
+          <button
+            @click="showDeleteConfirm = true"
+            class="w-full py-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl text-red-600 font-medium hover:from-red-100 hover:to-orange-100 transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            <Trash2 class="w-5 h-5" />
+            删除任务
+          </button>
         </div>
       </div>
 
@@ -346,6 +354,32 @@
           </div>
           <div v-if="comments.length > 2" class="text-center text-sm text-gray-400 py-2">
             查看全部 {{ comments.length }} 条留言
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-3xl p-6 mx-4 max-w-sm w-full shadow-2xl">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Trash2 class="w-8 h-8 text-red-500" />
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">确认删除</h3>
+          <p class="text-gray-500 mb-6">删除后将无法恢复，确定要删除这个任务吗？</p>
+          <div class="flex gap-3">
+            <button
+              @click="showDeleteConfirm = false"
+              class="flex-1 px-4 py-3 rounded-xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 transition-all duration-200"
+            >
+              取消
+            </button>
+            <button
+              @click="handleDelete"
+              class="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 text-white font-medium hover:from-red-600 hover:to-orange-600 transition-all duration-200"
+            >
+              删除
+            </button>
           </div>
         </div>
       </div>
@@ -409,8 +443,8 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
-import { ChevronLeft, ChevronRight, Calendar, Check, X, Loader2, Plus } from 'lucide-vue-next'
-import { tasks, records, updateTask, getTaskComments, checkIn, addComment, isCompleted, commentUpdateTrigger, appState } from '../stores/taskStore'
+import { ChevronLeft, ChevronRight, Calendar, Check, X, Loader2, Plus, Trash2 } from 'lucide-vue-next'
+import { tasks, records, updateTask, deleteTask, getTaskComments, checkIn, addComment, isCompleted, commentUpdateTrigger, appState } from '../stores/taskStore'
 import { user } from '../stores/userStore'
 
 const props = defineProps({
@@ -426,6 +460,7 @@ const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 
 const showCommentPage = ref(false)
 const expandedSection = ref(null)
+const showDeleteConfirm = ref(false)
 
 const newComment = ref('')
 
@@ -483,7 +518,7 @@ const lastSevenDays = computed(() => {
   for (let i = 6; i >= 0; i--) {
     const date = new Date(today)
     date.setDate(today.getDate() - i)
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     const dayRecord = records[dateStr]?.[props.taskId]
 
     result.push({
@@ -674,16 +709,33 @@ function setEndDateEmpty() {
   endDateIsLongTerm.value = true
 }
 
-function validateDates() {
+function validateStartDate() {
   dateError.value = ''
+  
+  const newStartDate = new Date(startDateYear.value, startDateMonth.value - 1, startDateDay.value)
+  
+  if (task.value?.endDate) {
+    const endDate = new Date(task.value.endDate)
+    if (newStartDate > endDate) {
+      dateError.value = '开始日期不能晚于结束日期'
+      return false
+    }
+  }
+  
+  return true
+}
+
+function validateEndDate() {
+  dateError.value = ''
+  
   if (endDateIsLongTerm.value) {
     return true
   }
   
-  const startDate = new Date(startDateYear.value, startDateMonth.value - 1, startDateDay.value)
-  const endDate = new Date(endDateYear.value, endDateMonth.value - 1, endDateDay.value)
+  const startDate = new Date(task.value?.startDate || new Date())
+  const newEndDate = new Date(endDateYear.value, endDateMonth.value - 1, endDateDay.value)
   
-  if (endDate < startDate) {
+  if (newEndDate < startDate) {
     dateError.value = '结束日期不能早于开始日期'
     return false
   }
@@ -692,7 +744,7 @@ function validateDates() {
 }
 
 function saveStartDate() {
-  if (!validateDates()) {
+  if (!validateStartDate()) {
     return
   }
   
@@ -706,7 +758,7 @@ function saveStartDate() {
 }
 
 function saveEndDate() {
-  if (!validateDates()) {
+  if (!validateEndDate()) {
     return
   }
   
@@ -733,13 +785,20 @@ function saveColor() {
 
 function submitComment() {
   if (!newComment.value.trim()) return
-  const today = new Date().toISOString().split('T')[0]
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   if (isCompleted(props.taskId, today)) {
     addComment(props.taskId, newComment.value, today)
   } else {
     checkIn(props.taskId, newComment.value, today)
   }
   newComment.value = ''
+}
+
+function handleDelete() {
+  deleteTask(props.taskId)
+  showDeleteConfirm.value = false
+  emit('back')
 }
 
 function formatDate(dateStr) {
