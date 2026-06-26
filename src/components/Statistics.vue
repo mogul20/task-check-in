@@ -732,6 +732,16 @@ const lineOptions = {
       padding: {
         top: 10
       }
+    },
+    // X轴配置：取消斜体和旋转
+    x: {
+      ticks: {
+        font: {
+          style: 'normal' // 强制设置为正常字体（非斜体）
+        },
+        maxRotation: 0, // 禁止旋转
+        minRotation: 0 // 禁止旋转
+      }
     }
   }
 }
@@ -762,6 +772,16 @@ const barOptions = {
       },
       padding: {
         top: 10
+      }
+    },
+    // X轴配置：取消斜体和旋转
+    x: {
+      ticks: {
+        font: {
+          style: 'normal' // 强制设置为正常字体（非斜体）
+        },
+        maxRotation: 0, // 禁止旋转
+        minRotation: 0 // 禁止旋转
       }
     }
   }
