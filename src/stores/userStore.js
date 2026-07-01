@@ -20,7 +20,9 @@ function getCookie(name) {
 function setCookie(name, value, days) {
   try {
     const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString()
-    document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Strict; secure`
+    const isSecure = window.location.protocol === 'https:'
+    const cookieStr = `${name}=${value}; expires=${expires}; path=/; SameSite=Strict${isSecure ? '; secure' : ''}`
+    document.cookie = cookieStr
     console.log('登录状态已保存到Cookie')
   } catch (e) {
     console.error('保存Cookie失败:', e)
@@ -140,6 +142,18 @@ if (typeof window !== 'undefined') {
         }
       } catch (err) {
         console.error('同步登录状态失败:', err)
+      }
+    }
+  })
+  
+  // 监听页面可见性变化（针对iOS Safari切换后台的情况）
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      console.log('页面变为可见，重新检查登录状态')
+      const storedData = getStoredUserData()
+      if (storedData && storedData.isLoggedIn) {
+        Object.assign(user, storedData)
+        console.log('从存储恢复登录状态:', storedData.userName)
       }
     }
   })
