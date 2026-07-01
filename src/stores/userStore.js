@@ -54,8 +54,7 @@ function getStoredUserData() {
           console.log('从localStorage恢复登录状态:', parsed.userName)
           return parsed
         } else {
-          console.log('登录状态已过期，需要重新登录')
-          return null
+          console.log('localStorage中登录状态已过期')
         }
       }
     }
@@ -78,6 +77,8 @@ function getStoredUserData() {
           // 同步到localStorage
           localStorage.setItem(USER_KEY, cookieData)
           return parsed
+        } else {
+          console.log('Cookie中登录状态已过期')
         }
       }
     }
@@ -96,13 +97,27 @@ function persistUserData(userData) {
   // 保存到localStorage
   try {
     localStorage.setItem(USER_KEY, jsonData)
-    console.log('登录状态已保存到localStorage')
+    // 验证是否保存成功
+    const verifyData = localStorage.getItem(USER_KEY)
+    if (verifyData === jsonData) {
+      console.log('登录状态已保存到localStorage，验证成功')
+    } else {
+      console.log('登录状态已保存到localStorage，但验证失败')
+    }
   } catch (e) {
     console.error('保存到localStorage失败:', e)
   }
   
   // 同时保存到Cookie作为备用
   setCookie(USER_KEY, jsonData, EXPIRATION_DAYS)
+  
+  // 验证Cookie是否保存成功
+  const cookieData = getCookie(USER_KEY)
+  if (cookieData === jsonData) {
+    console.log('登录状态已保存到Cookie，验证成功')
+  } else {
+    console.log('登录状态已保存到Cookie，但验证失败')
+  }
 }
 
 // 创建响应式用户对象
